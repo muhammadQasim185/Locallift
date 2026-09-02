@@ -69,7 +69,7 @@ function escapeHTML(text) {
 async function loadBusinesses() {
   try {
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/business?select=*`,
+      `${SUPABASE_URL}/rest/v1/Business?select=*`,
       {
         headers: {
           apikey: SUPABASE_KEY,
@@ -285,7 +285,7 @@ async function addBusiness(event) {
 
   try {
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/business`,
+      `${SUPABASE_URL}/rest/v1/Business`,
       {
         method: "POST",
         headers: {

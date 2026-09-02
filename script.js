@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co";
 const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
 
 const defaultBusinesses = [
@@ -90,17 +90,21 @@ async function loadBusinesses() {
   } catch (error) {
     console.error("Supabase error:", error);
 
-    // Website still works with the default businesses
     businesses = [...defaultBusinesses];
+
     renderBusinesses();
   }
 }
 
 function renderBusinesses(list = businesses) {
+  if (!businessList) return;
+
   businessList.innerHTML = "";
 
-  resultCount.textContent =
-    `${list.length} ${list.length === 1 ? "business" : "businesses"}`;
+  if (resultCount) {
+    resultCount.textContent =
+      `${list.length} ${list.length === 1 ? "business" : "businesses"}`;
+  }
 
   if (list.length === 0) {
     businessList.innerHTML = `
@@ -145,24 +149,34 @@ function renderBusinesses(list = businesses) {
         ${
           phone
             ? `<a class="call-btn" href="tel:${phone}">📞 Call</a>`
-            : `<button class="call-btn" onclick="showDetailsByName('${name.replace(/'/g, "\\'")}')">📋 Details</button>`
+            : `<button class="call-btn details-button">📋 Details</button>`
         }
 
-        <button class="view-btn" onclick="showDetailsByName('${name.replace(/'/g, "\\'")}')">
+        <button class="view-btn details-button">
           View
         </button>
       </div>
     `;
+
+    const buttons = card.querySelectorAll(".details-button");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        showDetailsByName(business.name);
+      });
+    });
 
     businessList.appendChild(card);
   });
 }
 
 function searchBusinesses() {
+  if (!searchInput || !categoryFilter) return;
+
   const searchTerm = searchInput.value.toLowerCase().trim();
   const selectedCategory = categoryFilter.value;
 
-  const filtered = businesses.filter(business => {
+  const filtered = businesses.filter((business) => {
     const matchesSearch =
       (business.name || "").toLowerCase().includes(searchTerm) ||
       (business.category || "").toLowerCase().includes(searchTerm) ||
@@ -180,17 +194,27 @@ function searchBusinesses() {
 }
 
 function filterCategory(category) {
-  categoryFilter.value = category;
-  searchInput.value = "";
+  if (categoryFilter) {
+    categoryFilter.value = category;
+  }
+
+  if (searchInput) {
+    searchInput.value = "";
+  }
+
   searchBusinesses();
 
-  document.querySelector(".business-section").scrollIntoView({
-    behavior: "smooth"
-  });
+  const section = document.querySelector(".business-section");
+
+  if (section) {
+    section.scrollIntoView({
+      behavior: "smooth"
+    });
+  }
 }
 
 function showDetailsByName(name) {
-  const business = businesses.find(b => b.name === name);
+  const business = businesses.find((b) => b.name === name);
 
   if (!business) return;
 
@@ -199,4 +223,113 @@ function showDetailsByName(name) {
     `Category: ${business.category}\n` +
     `Location: ${business.location}\n\n` +
     `${business.description}` +
-    (business.phone ? `\n\nPhone:
+    (business.phone
+      ? `\n\nPhone: ${business.phone}`
+      : "")
+  );
+}
+
+/* This exact name matches your HTML button */
+function openModa1() {
+  if (modal) {
+    modal.classList.add("show");
+  }
+}
+
+function closeModal() {
+  if (modal) {
+    modal.classList.remove("show");
+  }
+}
+
+if (modal) {
+  modal.addEventListener("click", function (event) {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+}
+
+async function addBusiness(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("businessName").value.trim();
+  const category = document.getElementById("businessCategory").value;
+  const location = document.getElementById("businessLocation").value.trim();
+  const phone = document.getElementById("businessPhone").value.trim();
+  const description =
+    document.getElementById("businessDescription").value.trim();
+
+  if (!name || !category || !location) {
+    alert("Please fill in the required fields.");
+    return;
+  }
+
+  const icons = {
+    Restaurant: "🍔",
+    Clothing: "👕",
+    Technology: "💻",
+    Beauty: "✨",
+    Services: "🔧"
+  };
+
+  const newBusiness = {
+    name: name,
+    category: category,
+    location: location,
+    phone: phone,
+    description:
+      description || "Local business on LocalLift.",
+    icon: icons[category] || "🏪"
+  };
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/business`,
+      {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify(newBusiness)
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Supabase error:", errorText);
+      throw new Error("Could not add business");
+    }
+
+    const savedBusiness = await response.json();
+
+    businesses.push(savedBusiness[0]);
+
+    event.target.reset();
+
+    closeModal();
+
+    renderBusinesses();
+
+    alert("🎉 Your business has been added to LocalLift!");
+  } catch (error) {
+    console.error("Error:", error);
+
+    alert(
+      "❌ Could not add the business. Please check your connection and try again."
+    );
+  }
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", searchBusinesses);
+}
+
+if (categoryFilter) {
+  categoryFilter.addEventListener("change", searchBusinesses);
+}
+
+loadBusinesses();

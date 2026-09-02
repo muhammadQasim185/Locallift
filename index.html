@@ -3,61 +3,279 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>LocalLift — Find Local Businesses</title>
+  <meta name="description" content="Discover local businesses, services, restaurants, shops and more with LocalLift.">
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header class="nav">
-  <div class="logo">Local<span>Lift</span></div>
-  <button class="list-btn" onclick="openModal()">+ List your business</button>
-</header>
 
-<main>
-  <section class="hero">
-    <div class="badge">DISCOVER • CONNECT • GROW</div>
-    <h1>Find great businesses<br><span>near you.</span></h1>
-    <p>Discover trusted local shops, services, restaurants and more — all in one place.</p>
-    <div class="search">
-      <input id="search" placeholder="Search businesses..." oninput="renderBusinesses()">
-      <select id="category" onchange="renderBusinesses()">
-        <option value="all">All categories</option>
-        <option>Restaurant</option><option>Clothing</option><option>Technology</option>
-        <option>Beauty</option><option>Services</option>
-      </select>
-      <button onclick="renderBusinesses()">Search</button>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container nav">
+
+      <a href="#" class="logo">
+        <span>Local</span>Lift
+      </a>
+
+      <button class="list-btn" onclick="openModal()">
+        + List your business
+      </button>
+
     </div>
-  </section>
+  </header>
 
-  <section class="content">
-    <div class="section-head">
-      <div><h2>Featured businesses</h2><p>Popular places people are discovering</p></div>
-      <button class="ghost" onclick="openModal()">Add yours →</button>
+
+  <!-- HERO -->
+  <main>
+
+    <section class="hero">
+      <div class="container hero-content">
+
+        <div class="badge">
+          📍 Discover local
+        </div>
+
+        <h1>
+          Find great businesses<br>
+          <span>near you.</span>
+        </h1>
+
+        <p>
+          Discover restaurants, shops, services and businesses around your area.
+        </p>
+
+
+        <!-- SEARCH -->
+        <div class="search-box">
+
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search businesses..."
+            oninput="searchBusinesses()"
+          >
+
+          <select id="categoryFilter" onchange="searchBusinesses()">
+            <option value="All">All categories</option>
+            <option value="Restaurant">Food & Restaurants</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Technology">Technology</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Services">Services</option>
+          </select>
+
+          <button onclick="searchBusinesses()">
+            Search
+          </button>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- CATEGORIES -->
+    <section class="categories">
+      <div class="container">
+
+        <h2>Browse categories</h2>
+
+        <div class="category-buttons">
+
+          <button onclick="filterCategory('All')">
+            🔥 All
+          </button>
+
+          <button onclick="filterCategory('Restaurant')">
+            🍔 Food
+          </button>
+
+          <button onclick="filterCategory('Clothing')">
+            👕 Clothing
+          </button>
+
+          <button onclick="filterCategory('Technology')">
+            💻 Tech
+          </button>
+
+          <button onclick="filterCategory('Beauty')">
+            ✨ Beauty
+          </button>
+
+          <button onclick="filterCategory('Services')">
+            🔧 Services
+          </button>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- BUSINESSES -->
+    <section class="business-section">
+      <div class="container">
+
+        <div class="section-heading">
+
+          <div>
+            <p class="small-title">LOCAL BUSINESSES</p>
+            <h2>Featured businesses</h2>
+          </div>
+
+          <span id="resultCount">0 businesses</span>
+
+        </div>
+
+
+        <div id="businessList" class="business-grid"></div>
+
+      </div>
+    </section>
+
+
+    <!-- OWNER CTA -->
+    <section class="owner-section">
+
+      <div class="container">
+
+        <div class="owner-card">
+
+          <div>
+            <p class="small-title">BUSINESS OWNERS</p>
+
+            <h2>
+              Want more people to discover your business?
+            </h2>
+
+            <p>
+              Add your business to LocalLift and let people find you.
+            </p>
+          </div>
+
+          <button onclick="openModal()">
+            Add my business →
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- MODAL -->
+  <div id="businessModal" class="modal">
+
+    <div class="modal-content">
+
+      <button class="close-btn" onclick="closeModal()">
+        ×
+      </button>
+
+      <h2>Add your business</h2>
+
+      <p>
+        Fill in the details below.
+      </p>
+
+      <form onsubmit="addBusiness(event)">
+
+        <input
+          type="text"
+          id="businessName"
+          placeholder="Business name"
+          required
+        >
+
+        <select id="businessCategory" required>
+
+          <option value="">
+            Select category
+          </option>
+
+          <option value="Restaurant">
+            Food & Restaurant
+          </option>
+
+          <option value="Clothing">
+            Clothing
+          </option>
+
+          <option value="Technology">
+            Technology
+          </option>
+
+          <option value="Beauty">
+            Beauty
+          </option>
+
+          <option value="Services">
+            Services
+          </option>
+
+        </select>
+
+        <input
+          type="text"
+          id="businessLocation"
+          placeholder="Location"
+          required
+        >
+
+        <input
+          type="text"
+          id="businessPhone"
+          placeholder="Phone / WhatsApp"
+        >
+
+        <textarea
+          id="businessDescription"
+          placeholder="Tell people about your business..."
+          rows="4"
+        ></textarea>
+
+        <button type="submit" class="submit-btn">
+          Add Business
+        </button>
+
+      </form>
+
     </div>
-    <div id="businessGrid" class="grid"></div>
-  </section>
-</main>
 
-<div id="modal" class="modal">
-  <div class="modal-card">
-    <button class="close" onclick="closeModal()">×</button>
-    <h2>List your business</h2>
-    <p>Start with a free listing. You can add paid featured plans later.</p>
-    <form onsubmit="addBusiness(event)">
-      <input id="name" required placeholder="Business name">
-      <select id="newCategory" required>
-        <option value="">Choose category</option>
-        <option>Restaurant</option><option>Clothing</option><option>Technology</option>
-        <option>Beauty</option><option>Services</option>
-      </select>
-      <input id="location" required placeholder="Location">
-      <input id="phone" placeholder="Phone / WhatsApp">
-      <textarea id="description" placeholder="Short description"></textarea>
-      <button class="submit" type="submit">Submit listing</button>
-    </form>
   </div>
-</div>
 
-<footer>© 2026 LocalLift · Helping local businesses get discovered.</footer>
-<script src="script.js"></script>
+
+  <!-- FOOTER -->
+  <footer>
+
+    <div class="container footer-content">
+
+      <div>
+        <div class="logo">
+          <span>Local</span>Lift
+        </div>
+
+        <p>
+          Discover local. Support local.
+        </p>
+      </div>
+
+      <p>
+        © 2026 LocalLift
+      </p>
+
+    </div>
+
+  </footer>
+
+
+  <script src="script.js"></script>
+
 </body>
 </html>

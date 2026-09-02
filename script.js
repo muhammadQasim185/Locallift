@@ -1,3 +1,6 @@
+const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
+
 const defaultBusinesses = [
   {
     name: "Nova Café",
@@ -49,9 +52,7 @@ const defaultBusinesses = [
   }
 ];
 
-let businesses = JSON.parse(
-  localStorage.getItem("localliftBusinesses")
-) || defaultBusinesses;
+let businesses = [...defaultBusinesses];
 
 const businessList = document.getElementById("businessList");
 const resultCount = document.getElementById("resultCount");
@@ -63,6 +64,36 @@ function escapeHTML(text) {
   const div = document.createElement("div");
   div.textContent = text || "";
   return div.innerHTML;
+}
+
+async function loadBusinesses() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/business?select=*`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not load businesses");
+    }
+
+    const onlineBusinesses = await response.json();
+
+    businesses = [...defaultBusinesses, ...onlineBusinesses];
+
+    renderBusinesses();
+  } catch (error) {
+    console.error("Supabase error:", error);
+
+    // Website still works with the default businesses
+    businesses = [...defaultBusinesses];
+    renderBusinesses();
+  }
 }
 
 function renderBusinesses(list = businesses) {
@@ -81,7 +112,7 @@ function renderBusinesses(list = businesses) {
     return;
   }
 
-  list.forEach((business, index) => {
+  list.forEach((business) => {
     const card = document.createElement("div");
     card.className = "business-card";
 
@@ -111,24 +142,15 @@ function renderBusinesses(list = businesses) {
       </p>
 
       <div class="card-actions">
-
         ${
           phone
-            ? `<a class="call-btn" href="tel:${phone}">
-                📞 Call
-              </a>`
-            : `<button class="call-btn" onclick="showDetails(${index})">
-                📋 Details
-              </button>`
+            ? `<a class="call-btn" href="tel:${phone}">📞 Call</a>`
+            : `<button class="call-btn" onclick="showDetailsByName('${name.replace(/'/g, "\\'")}')">📋 Details</button>`
         }
 
-        <button
-          class="view-btn"
-          onclick="showDetails(${index})"
-        >
+        <button class="view-btn" onclick="showDetailsByName('${name.replace(/'/g, "\\'")}')">
           View
         </button>
-
       </div>
     `;
 
@@ -141,12 +163,11 @@ function searchBusinesses() {
   const selectedCategory = categoryFilter.value;
 
   const filtered = businesses.filter(business => {
-
     const matchesSearch =
-      business.name.toLowerCase().includes(searchTerm) ||
-      business.category.toLowerCase().includes(searchTerm) ||
-      business.location.toLowerCase().includes(searchTerm) ||
-      business.description.toLowerCase().includes(searchTerm);
+      (business.name || "").toLowerCase().includes(searchTerm) ||
+      (business.category || "").toLowerCase().includes(searchTerm) ||
+      (business.location || "").toLowerCase().includes(searchTerm) ||
+      (business.description || "").toLowerCase().includes(searchTerm);
 
     const matchesCategory =
       selectedCategory === "All" ||
@@ -168,75 +189,14 @@ function filterCategory(category) {
   });
 }
 
-function showDetails(index) {
-  const business = businesses[index];
+function showDetailsByName(name) {
+  const business = businesses.find(b => b.name === name);
+
+  if (!business) return;
 
   alert(
     `${business.name}\n\n` +
     `Category: ${business.category}\n` +
     `Location: ${business.location}\n\n` +
     `${business.description}` +
-    (business.phone
-      ? `\n\nPhone: ${business.phone}`
-      : "")
-  );
-}
-
-function openModal() {
-  modal.classList.add("show");
-}
-
-function closeModal() {
-  modal.classList.remove("show");
-}
-
-modal.addEventListener("click", function(event) {
-  if (event.target === modal) {
-    closeModal();
-  }
-});
-
-function addBusiness(event) {
-  event.preventDefault();
-
-  const name = document.getElementById("businessName").value.trim();
-  const category = document.getElementById("businessCategory").value;
-  const location = document.getElementById("businessLocation").value.trim();
-  const phone = document.getElementById("businessPhone").value.trim();
-  const description =
-    document.getElementById("businessDescription").value.trim();
-
-  const icons = {
-    Restaurant: "🍔",
-    Clothing: "👕",
-    Technology: "💻",
-    Beauty: "✨",
-    Services: "🔧"
-  };
-
-  const newBusiness = {
-    name,
-    category,
-    location,
-    phone,
-    description: description || "Local business on LocalLift.",
-    icon: icons[category] || "🏪"
-  };
-
-  businesses.push(newBusiness);
-
-  localStorage.setItem(
-    "localliftBusinesses",
-    JSON.stringify(businesses)
-  );
-
-  event.target.reset();
-
-  closeModal();
-
-  renderBusinesses();
-
-  alert("🎉 Your business has been added to LocalLift!");
-}
-
-renderBusinesses();
+    (business.phone ? `\n\nPhone:

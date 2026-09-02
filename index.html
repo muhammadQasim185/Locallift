@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalLift — Find Local Businesses</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav">
+  <div class="logo">Local<span>Lift</span></div>
+  <button class="list-btn" onclick="openModal()">+ List your business</button>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="badge">DISCOVER • CONNECT • GROW</div>
+    <h1>Find great businesses<br><span>near you.</span></h1>
+    <p>Discover trusted local shops, services, restaurants and more — all in one place.</p>
+    <div class="search">
+      <input id="search" placeholder="Search businesses..." oninput="renderBusinesses()">
+      <select id="category" onchange="renderBusinesses()">
+        <option value="all">All categories</option>
+        <option>Restaurant</option><option>Clothing</option><option>Technology</option>
+        <option>Beauty</option><option>Services</option>
+      </select>
+      <button onclick="renderBusinesses()">Search</button>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="section-head">
+      <div><h2>Featured businesses</h2><p>Popular places people are discovering</p></div>
+      <button class="ghost" onclick="openModal()">Add yours →</button>
+    </div>
+    <div id="businessGrid" class="grid"></div>
+  </section>
+</main>
+
+<div id="modal" class="modal">
+  <div class="modal-card">
+    <button class="close" onclick="closeModal()">×</button>
+    <h2>List your business</h2>
+    <p>Start with a free listing. You can add paid featured plans later.</p>
+    <form onsubmit="addBusiness(event)">
+      <input id="name" required placeholder="Business name">
+      <select id="newCategory" required>
+        <option value="">Choose category</option>
+        <option>Restaurant</option><option>Clothing</option><option>Technology</option>
+        <option>Beauty</option><option>Services</option>
+      </select>
+      <input id="location" required placeholder="Location">
+      <input id="phone" placeholder="Phone / WhatsApp">
+      <textarea id="description" placeholder="Short description"></textarea>
+      <button class="submit" type="submit">Submit listing</button>
+    </form>
+  </div>
+</div>
+
+<footer>© 2026 LocalLift · Helping local businesses get discovered.</footer>
+<script src="script.js"></script>
+</body>
+</html>

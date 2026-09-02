@@ -333,3 +333,6 @@ if (categoryFilter) {
 }
 
 loadBusinesses();
+window.openModa1 = openModa1;
+window.openModal = openModa1;
+window.closeModal = closeModal;

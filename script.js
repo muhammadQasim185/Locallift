@@ -1,2105 +1,898 @@
-/* =====================================================
-   LOCALLIFT
-   SUPABASE + DIRECTORY + MONETIZATION SYSTEM
-   ===================================================== */
+// ======================================================
+// LOCALLIFT - SCRIPT.JS
+// ======================================================
 
+// ---------- SUPABASE CONFIG ----------
+const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co";
 
-/* =====================================================
-   SUPABASE SETTINGS
-   ===================================================== */
+// PASTE YOUR EXISTING SUPABASE PUBLISHABLE/ANON KEY HERE
+const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
 
-const SUPABASE_URL =
-  "https://lhfpowxkmbyyewwxihtw.supabase.co";
+// ---------- LOCALLIFT WHATSAPP ----------
+const OWNER_CONTACT = "923498092089";
 
-const SUPABASE_KEY =
-  "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
+// ---------- DOM ----------
+const businessGrid = document.getElementById("businessGrid");
+const searchInput = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
+const locationFilter = document.getElementById("locationFilter");
+const sortSelect = document.getElementById("sortSelect");
 
+let businesses = [];
+let filteredBusinesses = [];
 
-/*
-  IMPORTANT:
+// ======================================================
+// DEMO BUSINESSES
+// These are only shown if Supabase has no businesses.
+// ======================================================
 
-  Paste the SAME Supabase publishable key that already
-  worked for your current LocalLift website.
-
-  Do not change your table name.
-
-  Current table:
-  Business
-
-  Existing columns:
-  id
-  created_at
-  name
-  category
-  location
-  phone
-  description
-*/
-
-
-/* =====================================================
-   OWNER CONTACT
-   ===================================================== */
-
-/*
-  Put YOUR business contact here later.
-
-  Example:
-
-  const OWNER_CONTACT = "03001234567";
-
-  This is used when someone wants a paid promotion.
-
-  You can leave it blank for now.
-*/
-
-const OWNER_CONTACT = "";
-
-
-/* =====================================================
-   DEFAULT BUSINESSES
-   ===================================================== */
-
-const defaultBusinesses = [
-
-  {
-    name: "Nova Café",
-    category: "Restaurant",
-    location: "Mirpur",
-    phone: "",
-    description:
-      "A cozy local café serving delicious food and drinks.",
-    icon: "☕",
-    plan: "featured"
-  },
-
-  {
-    name: "Pixel Tech",
-    category: "Technology",
-    location: "Mirpur",
-    phone: "",
-    description:
-      "Phones, computers, accessories and technology services.",
-    icon: "💻",
-    plan: "premium"
-  },
-
-  {
-    name: "Urban Threads",
-    category: "Clothing",
-    location: "Mirpur",
-    phone: "",
-    description:
-      "Trendy clothing and fashion for everyday style.",
-    icon: "👕",
-    plan: "free"
-  },
-
-  {
-    name: "Glow Studio",
-    category: "Beauty",
-    location: "Mirpur",
-    phone: "",
-    description:
-      "Beauty and personal care services.",
-    icon: "✨",
-    plan: "free"
-  },
-
-  {
-    name: "QuickFix Services",
-    category: "Services",
-    location: "Mangla",
-    phone: "",
-    description:
-      "Reliable local repair and maintenance services.",
-    icon: "🔧",
-    plan: "featured"
-  },
-
-  {
-    name: "Spice House",
-    category: "Restaurant",
-    location: "Jhelum",
-    phone: "",
-    description:
-      "Fresh and tasty local food for everyone.",
-    icon: "🍽️",
-    plan: "free"
-  }
-
+const demoBusinesses = [
+    {
+        id: "demo-1",
+        name: "LocalLift Electronics",
+        category: "Electronics",
+        location: "Mirpur",
+        phone: "03000000000",
+        description: "Phones, accessories and everyday electronics.",
+        plan: "premium"
+    },
+    {
+        id: "demo-2",
+        name: "Mangla Sports Hub",
+        category: "Sports",
+        location: "Mangla",
+        phone: "03111111111",
+        description: "Cricket equipment, sports accessories and more.",
+        plan: "featured"
+    },
+    {
+        id: "demo-3",
+        name: "Mirpur Fashion Store",
+        category: "Fashion",
+        location: "Mirpur",
+        phone: "03222222222",
+        description: "Modern clothing and fashion accessories.",
+        plan: "free"
+    }
 ];
 
-
-let businesses = [...defaultBusinesses];
-
-let currentFilteredBusinesses = [];
-
-let toastTimer = null;
-
-
-/* =====================================================
-   ELEMENTS
-   ===================================================== */
-
-const businessList =
-  document.getElementById("businessList");
-
-const resultCount =
-  document.getElementById("resultCount");
-
-const searchInput =
-  document.getElementById("searchInput");
-
-const clearSearch =
-  document.getElementById("clearSearch");
-
-const categoryFilter =
-  document.getElementById("categoryFilter");
-
-const sortFilter =
-  document.getElementById("sortFilter");
-
-const businessModal =
-  document.getElementById("businessModal");
-
-const detailsModal =
-  document.getElementById("detailsModal");
-
-const promotionModal =
-  document.getElementById("promotionModal");
-
-const detailsContent =
-  document.getElementById("detailsContent");
-
-const toast =
-  document.getElementById("toast");
-
-const backTop =
-  document.getElementById("backTop");
-
-const themeToggle =
-  document.getElementById("themeToggle");
-
-
-/* =====================================================
-   HTML SECURITY
-   ===================================================== */
-
-function escapeHTML(value) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    value == null ? "" : String(value);
-
-  return div.innerHTML;
-}
-
-
-/* =====================================================
-   ICONS
-   ===================================================== */
-
-function getIcon(category) {
-
-  const icons = {
-
-    Restaurant: "🍔",
-    Clothing: "👕",
-    Technology: "💻",
-    Beauty: "✨",
-    Services: "🔧"
-
-  };
-
-  return icons[category] || "🏪";
-}
-
-
-/* =====================================================
-   PLAN HELPERS
-   ===================================================== */
-
-function getPlan(business) {
-
-  if (!business) {
-    return "free";
-  }
-
-  return String(
-    business.plan || "free"
-  ).toLowerCase();
-
-}
-
-
-function getPlanRank(business) {
-
-  const plan =
-    getPlan(business);
-
-  if (plan === "premium") {
-    return 2;
-  }
-
-  if (plan === "featured") {
-    return 1;
-  }
-
-  return 0;
-}
-
-
-/*
-  Paid plans are represented on the front-end only
-  until a real payment/business approval system exists.
-
-  Your Supabase schema does NOT need a "plan" column.
-*/
-
-
-/* =====================================================
-   FAVORITES
-   ===================================================== */
-
-function getFavorites() {
-
-  try {
-
-    return JSON.parse(
-      localStorage.getItem(
-        "locallift_favorites"
-      )
-    ) || [];
-
-  } catch {
-
-    return [];
-
-  }
-
-}
-
-
-function saveFavorites(favorites) {
-
-  localStorage.setItem(
-    "locallift_favorites",
-    JSON.stringify(favorites)
-  );
-
-}
-
-
-function getBusinessKey(business) {
-
-  if (business.id) {
-    return `id-${business.id}`;
-  }
-
-  return [
-    business.name,
-    business.location,
-    business.category
-  ]
-    .join("|")
-    .toLowerCase();
-
-}
-
-
-function isFavorite(business) {
-
-  const favorites =
-    getFavorites();
-
-  return favorites.includes(
-    getBusinessKey(business)
-  );
-
-}
-
-
-function toggleFavorite(business) {
-
-  const favorites =
-    getFavorites();
-
-  const key =
-    getBusinessKey(business);
-
-  const index =
-    favorites.indexOf(key);
-
-  if (index >= 0) {
-
-    favorites.splice(index, 1);
-
-    showToast(
-      "Removed from favorites."
-    );
-
-  } else {
-
-    favorites.push(key);
-
-    showToast(
-      "⭐ Added to favorites."
-    );
-
-  }
-
-  saveFavorites(favorites);
-
-  searchBusinesses();
-
-}
-
-
-/* =====================================================
-   LOAD BUSINESSES
-   ===================================================== */
+// ======================================================
+// INITIALIZE
+// ======================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadBusinesses();
+    setupEvents();
+    updateFavoriteCount();
+});
+
+// ======================================================
+// LOAD BUSINESSES FROM SUPABASE
+// ======================================================
 
 async function loadBusinesses() {
-
-  renderLoading();
-
-  try {
-
-    if (
-      !SUPABASE_KEY ||
-      SUPABASE_KEY ===
-        "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
-    ) {
-
-      throw new Error(
-        "Supabase publishable key is missing."
-      );
-
-    }
-
-
-    const response =
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/Business?select=*`,
-        {
-
-          method: "GET",
-
-          headers: {
-
-            apikey: SUPABASE_KEY,
-
-            Authorization:
-              `Bearer ${SUPABASE_KEY}`
-
-          }
-
-        }
-      );
-
-
-    if (!response.ok) {
-
-      const errorText =
-        await response.text();
-
-      throw new Error(
-        `Load failed (${response.status}): ${errorText}`
-      );
-
-    }
-
-
-    const onlineBusinesses =
-      await response.json();
-
-
-    businesses = [
-
-      ...defaultBusinesses,
-
-      ...onlineBusinesses.map(
-        function (business) {
-
-          return {
-
-            ...business,
-
-            icon:
-              getIcon(
-                business.category
-              ),
-
-            plan:
-              "free"
-
-          };
-
-        }
-      )
-
-    ];
-
-
-    updateStats();
-
-    searchBusinesses();
-
-
-  } catch (error) {
-
-    console.error(
-      "LocalLift Supabase load error:",
-      error
-    );
-
-
-    /*
-      The website still works with default
-      businesses if Supabase is temporarily
-      unavailable.
-    */
-
-    businesses =
-      [...defaultBusinesses];
-
-    updateStats();
-
-    searchBusinesses();
-
-  }
-
-}
-
-
-/* =====================================================
-   LOADING UI
-   ===================================================== */
-
-function renderLoading() {
-
-  if (!businessList) {
-    return;
-  }
-
-  businessList.innerHTML = `
-
-    <div class="no-results">
-
-      <h3>Loading businesses...</h3>
-
-      <p>
-        Finding local businesses for you.
-      </p>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =====================================================
-   RENDER BUSINESSES
-   ===================================================== */
-
-function renderBusinesses(
-  list = businesses
-) {
-
-  if (!businessList) {
-    return;
-  }
-
-
-  currentFilteredBusinesses =
-    list;
-
-
-  businessList.innerHTML =
-    "";
-
-
-  if (resultCount) {
-
-    resultCount.textContent =
-      `${list.length} ${
-        list.length === 1
-          ? "business"
-          : "businesses"
-      } found`;
-
-  }
-
-
-  if (list.length === 0) {
-
-    businessList.innerHTML = `
-
-      <div class="no-results">
-
-        <h3>
-          No businesses found
-        </h3>
-
-        <p>
-          Try another search or category.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  list.forEach(
-    function (business) {
-
-      const card =
-        document.createElement("article");
-
-      card.className =
-        "business-card";
-
-
-      const name =
-        escapeHTML(
-          business.name
-        );
-
-      const category =
-        escapeHTML(
-          business.category
-        );
-
-      const location =
-        escapeHTML(
-          business.location
-        );
-
-      const phone =
-        escapeHTML(
-          business.phone
-        );
-
-      const description =
-        escapeHTML(
-          business.description ||
-          "Local business on LocalLift."
-        );
-
-
-      const icon =
-        business.icon ||
-        getIcon(
-          business.category
-        );
-
-
-      const plan =
-        getPlan(business);
-
-
-      const favorite =
-        isFavorite(business);
-
-
-      let planBadge = "";
-
-
-      if (plan === "premium") {
-
-        planBadge = `
-          <span class="premium-badge">
-            🚀 PREMIUM
-          </span>
-        `;
-
-      } else if (plan === "featured") {
-
-        planBadge = `
-          <span class="featured-badge">
-            ⭐ FEATURED
-          </span>
-        `;
-
-      }
-
-
-      card.innerHTML = `
-
-        <div class="card-top">
-
-          <div class="business-icon">
-            ${icon}
-          </div>
-
-          <button
-            class="favorite-btn ${
-              favorite ? "active" : ""
-            }"
-            type="button"
-            aria-label="Favorite ${name}"
-          >
-            ${favorite ? "♥" : "♡"}
-          </button>
-
-        </div>
-
-
-        <h3>
-          ${name}
-        </h3>
-
-
-        <div class="badges">
-
-          <span class="business-category">
-            ${category}
-          </span>
-
-          ${planBadge}
-
-        </div>
-
-
-        <p class="business-location">
-          📍 ${location}
-        </p>
-
-
-        <p class="business-description">
-          ${description}
-        </p>
-
-
-        <div class="card-actions">
-
-          ${
-            phone
-
-              ? `
-                <a
-                  class="call-btn"
-                  href="tel:${phone}"
-                >
-                  📞 Call
-                </a>
-              `
-
-              : `
-                <button
-                  class="call-btn details-button"
-                  type="button"
-                >
-                  📋 Details
-                </button>
-              `
-          }
-
-
-          <button
-            class="view-btn details-button"
-            type="button"
-          >
-            View
-          </button>
-
-        </div>
-
-      `;
-
-
-      const favoriteButton =
-        card.querySelector(
-          ".favorite-btn"
-        );
-
-
-      if (favoriteButton) {
-
-        favoriteButton.addEventListener(
-          "click",
-          function () {
-
-            toggleFavorite(
-              business
-            );
-
-          }
-        );
-
-      }
-
-
-      const detailButtons =
-        card.querySelectorAll(
-          ".details-button"
-        );
-
-
-      detailButtons.forEach(
-        function (button) {
-
-          button.addEventListener(
-            "click",
-            function () {
-
-              showDetails(
-                business
-              );
-
+    showLoading();
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/Business?select=*`,
+            {
+                method: "GET",
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    "Content-Type": "application/json"
+                }
             }
-          );
-
-        }
-      );
-
-
-      businessList.appendChild(card);
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   SEARCH + FILTER + SORT
-   ===================================================== */
-
-function searchBusinesses() {
-
-  const searchTerm =
-    searchInput
-      ? searchInput.value
-          .toLowerCase()
-          .trim()
-      : "";
-
-
-  const selectedCategory =
-    categoryFilter
-      ? categoryFilter.value
-      : "All";
-
-
-  let filtered =
-    businesses.filter(
-      function (business) {
-
-        const searchableText = [
-
-          business.name || "",
-          business.category || "",
-          business.location || "",
-          business.description || ""
-
-        ]
-          .join(" ")
-          .toLowerCase();
-
-
-        const matchesSearch =
-          searchableText.includes(
-            searchTerm
-          );
-
-
-        const matchesCategory =
-          selectedCategory === "All" ||
-          business.category ===
-            selectedCategory;
-
-
-        return (
-          matchesSearch &&
-          matchesCategory
         );
 
-      }
-    );
-
-
-  const sortValue =
-    sortFilter
-      ? sortFilter.value
-      : "newest";
-
-
-  if (sortValue === "name") {
-
-    filtered.sort(
-      function (a, b) {
-
-        return String(
-          a.name || ""
-        ).localeCompare(
-          String(b.name || "")
-        );
-
-      }
-    );
-
-  }
-
-
-  if (sortValue === "location") {
-
-    filtered.sort(
-      function (a, b) {
-
-        return String(
-          a.location || ""
-        ).localeCompare(
-          String(b.location || "")
-        );
-
-      }
-    );
-
-  }
-
-
-  if (sortValue === "newest") {
-
-    filtered.sort(
-      function (a, b) {
-
-        const planDifference =
-          getPlanRank(b) -
-          getPlanRank(a);
-
-        if (planDifference !== 0) {
-          return planDifference;
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
         }
 
+        const data = await response.json();
 
-        const dateA =
-          new Date(
-            a.created_at || 0
-          ).getTime();
+        businesses = Array.isArray(data) && data.length > 0
+            ? data
+            : demoBusinesses;
 
+        filteredBusinesses = [...businesses];
 
-        const dateB =
-          new Date(
-            b.created_at || 0
-          ).getTime();
+        populateFilters();
+        renderBusinesses();
+        updateStats();
 
+    } catch (error) {
+        console.error("Supabase error:", error);
 
-        return dateB - dateA;
+        // Keep the site usable if Supabase temporarily fails.
+        businesses = [...demoBusinesses];
+        filteredBusinesses = [...businesses];
 
-      }
-    );
+        populateFilters();
+        renderBusinesses();
+        updateStats();
 
-  }
-
-
-  renderBusinesses(
-    filtered
-  );
-
-}
-
-
-/* =====================================================
-   CATEGORY FILTER
-   ===================================================== */
-
-function filterCategory(
-  category
-) {
-
-  if (categoryFilter) {
-
-    categoryFilter.value =
-      category;
-
-  }
-
-
-  if (searchInput) {
-
-    searchInput.value =
-      "";
-
-  }
-
-
-  document
-    .querySelectorAll(
-      ".category-btn"
-    )
-    .forEach(
-      function (button) {
-
-        button.classList.toggle(
-          "active",
-          button.dataset.category ===
-            category
+        showToast(
+            "Could not connect to the database. Showing demo businesses.",
+            "error"
         );
-
-      }
-    );
-
-
-  updateClearSearch();
-
-  searchBusinesses();
-
-  scrollToBusinesses();
-
-}
-
-
-/* =====================================================
-   SEARCH CLEAR
-   ===================================================== */
-
-function updateClearSearch() {
-
-  if (!clearSearch || !searchInput) {
-    return;
-  }
-
-  clearSearch.classList.toggle(
-    "show",
-    searchInput.value.length > 0
-  );
-
-}
-
-
-if (searchInput) {
-
-  searchInput.addEventListener(
-    "input",
-    function () {
-
-      updateClearSearch();
-
-      searchBusinesses();
-
     }
-  );
-
 }
 
+// ======================================================
+// RENDER BUSINESSES
+// ======================================================
 
-if (clearSearch) {
+function renderBusinesses() {
+    if (!businessGrid) return;
 
-  clearSearch.addEventListener(
-    "click",
-    function () {
-
-      if (searchInput) {
-
-        searchInput.value =
-          "";
-
-        searchInput.focus();
-
-      }
-
-      updateClearSearch();
-
-      searchBusinesses();
-
+    if (filteredBusinesses.length === 0) {
+        businessGrid.innerHTML = `
+            <div class="empty-state">
+                <h3>No businesses found</h3>
+                <p>Try another search or category.</p>
+            </div>
+        `;
+        return;
     }
-  );
 
+    businessGrid.innerHTML = filteredBusinesses
+        .map((business) => createBusinessCard(business))
+        .join("");
 }
 
+// ======================================================
+// BUSINESS CARD
+// ======================================================
 
-/* =====================================================
-   STATS
-   ===================================================== */
-
-function updateStats() {
-
-  const totalBusinesses =
-    document.getElementById(
-      "totalBusinesses"
+function createBusinessCard(business) {
+    const name = escapeHTML(business.name || "Unnamed Business");
+    const category = escapeHTML(business.category || "General");
+    const location = escapeHTML(business.location || "Not specified");
+    const phone = escapeHTML(business.phone || "");
+    const description = escapeHTML(
+        business.description || "No description available."
     );
 
-  const totalCategories =
-    document.getElementById(
-      "totalCategories"
-    );
-
-  const totalLocations =
-    document.getElementById(
-      "totalLocations"
-    );
-
-
-  const realOnlineBusinesses =
-    businesses.filter(
-      function (business) {
-
-        return Boolean(
-          business.id
-        );
-
-      }
-    );
-
-
-  const categories =
-    new Set(
-      businesses
-        .map(
-          function (business) {
-            return business.category;
-          }
-        )
-        .filter(Boolean)
-    );
-
-
-  const locations =
-    new Set(
-      businesses
-        .map(
-          function (business) {
-            return String(
-              business.location || ""
-            )
-              .trim()
-              .toLowerCase();
-          }
-        )
-        .filter(Boolean)
-    );
-
-
-  if (totalBusinesses) {
-
-    totalBusinesses.textContent =
-      businesses.length;
-
-  }
-
-
-  if (totalCategories) {
-
-    totalCategories.textContent =
-      categories.size;
-
-  }
-
-
-  if (totalLocations) {
-
-    totalLocations.textContent =
-      locations.size;
-
-  }
-
-}
-
-
-/* =====================================================
-   DETAILS MODAL
-   ===================================================== */
-
-function showDetails(
-  business
-) {
-
-  if (
-    !detailsModal ||
-    !detailsContent
-  ) {
-
-    return;
-
-  }
-
-
-  const name =
-    escapeHTML(
-      business.name
-    );
-
-  const category =
-    escapeHTML(
-      business.category
-    );
-
-  const location =
-    escapeHTML(
-      business.location
-    );
-
-  const phone =
-    escapeHTML(
-      business.phone
-    );
-
-  const description =
-    escapeHTML(
-      business.description ||
-      "Local business on LocalLift."
-    );
-
-
-  const icon =
-    business.icon ||
-    getIcon(
-      business.category
-    );
-
-
-  const plan =
-    getPlan(business);
-
-
-  let badge = "";
-
-
-  if (plan === "premium") {
-
-    badge = `
-      <span class="premium-badge">
-        🚀 PREMIUM
-      </span>
-    `;
-
-  } else if (plan === "featured") {
-
-    badge = `
-      <span class="featured-badge">
-        ⭐ FEATURED
-      </span>
-    `;
-
-  }
-
-
-  detailsContent.innerHTML = `
-
-    <div class="details-icon">
-      ${icon}
-    </div>
-
-    <div class="badges">
-
-      <span class="business-category">
-        ${category}
-      </span>
-
-      ${badge}
-
-    </div>
-
-    <h2>
-      ${name}
-    </h2>
-
-
-    <div class="details-meta">
-
-      <div>
-
-        <strong>
-          LOCATION
-        </strong>
-
-        📍 ${location}
-
-      </div>
-
-
-      ${
-        phone
-          ? `
-            <div>
-
-              <strong>
-                PHONE
-              </strong>
-
-              📞 ${phone}
+    const id = String(business.id || "");
+    const plan = business.plan || "free";
+
+    const isFavorite = getFavorites().includes(id);
+
+    let badge = "";
+
+    if (plan === "premium") {
+        badge = `<span class="business-badge premium">PREMIUM</span>`;
+    } else if (plan === "featured") {
+        badge = `<span class="business-badge featured">FEATURED</span>`;
+    }
+
+    return `
+        <article class="business-card">
+
+            <div class="business-card-top">
+                <div class="business-icon">
+                    ${getCategoryIcon(category)}
+                </div>
+
+                ${badge}
+
+                <button
+                    class="favorite-btn ${isFavorite ? "active" : ""}"
+                    onclick="toggleFavorite('${escapeJS(id)}')"
+                    aria-label="Favorite business"
+                >
+                    ${isFavorite ? "♥" : "♡"}
+                </button>
+            </div>
+
+            <div class="business-card-body">
+
+                <p class="business-category">
+                    ${category}
+                </p>
+
+                <h3>
+                    ${name}
+                </h3>
+
+                <p class="business-location">
+                    📍 ${location}
+                </p>
+
+                <p class="business-description">
+                    ${description}
+                </p>
+
+                <div class="business-actions">
+
+                    <button
+                        class="details-btn"
+                        onclick="openBusinessDetails('${escapeJS(id)}')"
+                    >
+                        View Details
+                    </button>
+
+                    ${
+                        phone
+                            ? `
+                            <a
+                                class="call-btn"
+                                href="tel:${escapeHTML(phone)}"
+                            >
+                                Call
+                            </a>
+                            `
+                            : ""
+                    }
+
+                </div>
 
             </div>
-          `
-          : ""
-      }
+        </article>
+    `;
+}
 
-    </div>
+// ======================================================
+// CATEGORY ICONS
+// ======================================================
 
+function getCategoryIcon(category) {
+    const value = String(category).toLowerCase();
 
-    <p class="details-description">
-      ${description}
-    </p>
+    if (value.includes("food") || value.includes("restaurant")) return "🍽️";
+    if (value.includes("shop")) return "🛍️";
+    if (value.includes("fashion")) return "👕";
+    if (value.includes("electronic")) return "📱";
+    if (value.includes("sport")) return "🏏";
+    if (value.includes("education")) return "📚";
+    if (value.includes("beauty")) return "💈";
+    if (value.includes("medical")) return "🏥";
+    if (value.includes("car") || value.includes("auto")) return "🚗";
+    if (value.includes("hotel")) return "🏨";
 
+    return "🏢";
+}
 
-    ${
-      phone
-        ? `
-          <a
-            class="details-call"
-            href="tel:${phone}"
-          >
-            📞 Call this business
-          </a>
-        `
-        : ""
+// ======================================================
+// SEARCH + FILTERS
+// ======================================================
+
+function setupEvents() {
+    if (searchInput) {
+        searchInput.addEventListener("input", applyFilters);
     }
 
-  `;
+    if (categoryFilter) {
+        categoryFilter.addEventListener("change", applyFilters);
+    }
 
+    if (locationFilter) {
+        locationFilter.addEventListener("change", applyFilters);
+    }
 
-  detailsModal.classList.add(
-    "show"
-  );
-
-  detailsModal.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
+    if (sortSelect) {
+        sortSelect.addEventListener("change", applyFilters);
+    }
 }
 
+function applyFilters() {
+    const search = String(searchInput?.value || "")
+        .toLowerCase()
+        .trim();
 
-/* =====================================================
-   CLOSE DETAILS
-   ===================================================== */
+    const category = String(categoryFilter?.value || "")
+        .toLowerCase();
 
-function closeDetails() {
+    const location = String(locationFilter?.value || "")
+        .toLowerCase();
 
-  if (!detailsModal) {
-    return;
-  }
+    filteredBusinesses = businesses.filter((business) => {
+        const name = String(business.name || "").toLowerCase();
+        const businessCategory = String(
+            business.category || ""
+        ).toLowerCase();
 
-  detailsModal.classList.remove(
-    "show"
-  );
+        const businessLocation = String(
+            business.location || ""
+        ).toLowerCase();
 
-  detailsModal.setAttribute(
-    "aria-hidden",
-    "true"
-  );
+        const description = String(
+            business.description || ""
+        ).toLowerCase();
 
+        const matchesSearch =
+            !search ||
+            name.includes(search) ||
+            businessCategory.includes(search) ||
+            businessLocation.includes(search) ||
+            description.includes(search);
+
+        const matchesCategory =
+            !category ||
+            businessCategory === category;
+
+        const matchesLocation =
+            !location ||
+            businessLocation === location;
+
+        return (
+            matchesSearch &&
+            matchesCategory &&
+            matchesLocation
+        );
+    });
+
+    sortBusinesses();
+    renderBusinesses();
 }
 
+// ======================================================
+// SORT
+// ======================================================
 
-/* =====================================================
-   BUSINESS MODAL
-   ===================================================== */
+function sortBusinesses() {
+    const sort = sortSelect?.value || "featured";
 
-function openModal() {
+    if (sort === "name") {
+        filteredBusinesses.sort((a, b) =>
+            String(a.name || "").localeCompare(
+                String(b.name || "")
+            )
+        );
+    }
 
-  if (!businessModal) {
-    return;
-  }
+    if (sort === "newest") {
+        filteredBusinesses.sort(
+            (a, b) =>
+                new Date(b.created_at || 0) -
+                new Date(a.created_at || 0)
+        );
+    }
 
-  businessModal.classList.add(
-    "show"
-  );
+    if (sort === "featured") {
+        const rank = {
+            premium: 3,
+            featured: 2,
+            free: 1
+        };
 
-  businessModal.setAttribute(
-    "aria-hidden",
-    "false"
-  );
+        filteredBusinesses.sort(
+            (a, b) =>
+                (rank[b.plan] || 1) -
+                (rank[a.plan] || 1)
+        );
+    }
+}
 
+// ======================================================
+// FILTER OPTIONS
+// ======================================================
 
-  setTimeout(
-    function () {
+function populateFilters() {
+    if (categoryFilter) {
+        const categories = [
+            ...new Set(
+                businesses
+                    .map((b) => b.category)
+                    .filter(Boolean)
+            )
+        ].sort();
 
-      const input =
-        document.getElementById(
-          "businessName"
+        categoryFilter.innerHTML =
+            `<option value="">All Categories</option>` +
+            categories
+                .map(
+                    (category) =>
+                        `<option value="${escapeHTML(
+                            category
+                        )}">${escapeHTML(category)}</option>`
+                )
+                .join("");
+    }
+
+    if (locationFilter) {
+        const locations = [
+            ...new Set(
+                businesses
+                    .map((b) => b.location)
+                    .filter(Boolean)
+            )
+        ].sort();
+
+        locationFilter.innerHTML =
+            `<option value="">All Locations</option>` +
+            locations
+                .map(
+                    (location) =>
+                        `<option value="${escapeHTML(
+                            location
+                        )}">${escapeHTML(location)}</option>`
+                )
+                .join("");
+    }
+}
+
+// ======================================================
+// ADD BUSINESS
+// ======================================================
+
+async function addBusiness(event) {
+    event.preventDefault();
+
+    const form = event.target;
+
+    const name = form.name?.value.trim();
+    const category = form.category?.value.trim();
+    const location = form.location?.value.trim();
+    const phone = form.phone?.value.trim();
+    const description = form.description?.value.trim();
+
+    if (!name || !category || !location) {
+        showToast(
+            "Please fill in the required fields.",
+            "error"
+        );
+        return;
+    }
+
+    const businessData = {
+        name,
+        category,
+        location,
+        phone: phone || "",
+        description: description || ""
+    };
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/Business`,
+            {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=representation"
+                },
+                body: JSON.stringify(businessData)
+            }
         );
 
-      if (input) {
-        input.focus();
-      }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
 
-    },
-    100
-  );
-
-}
-
-
-function closeModal() {
-
-  if (!businessModal) {
-    return;
-  }
-
-  businessModal.classList.remove(
-    "show"
-  );
-
-  businessModal.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-}
-
-
-/* =====================================================
-   PROMOTION REQUEST
-   ===================================================== */
-
-function openPromotionRequest(
-  plan
-) {
-
-  if (!promotionModal) {
-    return;
-  }
-
-
-  const planInput =
-    document.getElementById(
-      "promotionPlan"
-    );
-
-
-  if (planInput) {
-
-    planInput.value =
-      plan;
-
-  }
-
-
-  promotionModal.classList.add(
-    "show"
-  );
-
-  promotionModal.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
-
-  setTimeout(
-    function () {
-
-      const input =
-        document.getElementById(
-          "promotionBusiness"
+        showToast(
+            "Your business has been added to LocalLift! 🔥",
+            "success"
         );
 
-      if (input) {
-        input.focus();
-      }
+        form.reset();
 
-    },
-    100
-  );
+        await loadBusinesses();
 
+    } catch (error) {
+        console.error("Insert error:", error);
+
+        showToast(
+            "Could not add the business. Check your Supabase setup.",
+            "error"
+        );
+    }
 }
 
+// ======================================================
+// BUSINESS DETAILS
+// ======================================================
 
-function closePromotionModal() {
-
-  if (!promotionModal) {
-    return;
-  }
-
-  promotionModal.classList.remove(
-    "show"
-  );
-
-  promotionModal.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-}
-
-
-/* =====================================================
-   PROMOTION FORM
-   ===================================================== */
-
-function submitPromotionRequest(
-  event
-) {
-
-  event.preventDefault();
-
-
-  const businessName =
-    document.getElementById(
-      "promotionBusiness"
-    ).value.trim();
-
-
-  const phone =
-    document.getElementById(
-      "promotionPhone"
-    ).value.trim();
-
-
-  const plan =
-    document.getElementById(
-      "promotionPlan"
-    ).value;
-
-
-  if (
-    !businessName ||
-    !phone ||
-    !plan
-  ) {
-
-    showToast(
-      "Please fill in all fields."
+function openBusinessDetails(id) {
+    const business = businesses.find(
+        (item) => String(item.id) === String(id)
     );
 
-    return;
+    if (!business) return;
 
-  }
+    const existingModal =
+        document.getElementById("businessModal");
 
+    if (existingModal) {
+        existingModal.remove();
+    }
 
-  /*
-    If you add your owner contact above,
-    this opens the user's phone's messaging
-    application.
+    const name = escapeHTML(business.name || "Business");
+    const category = escapeHTML(
+        business.category || "General"
+    );
+    const location = escapeHTML(
+        business.location || "Not specified"
+    );
+    const phone = escapeHTML(business.phone || "");
+    const description = escapeHTML(
+        business.description || "No description available."
+    );
 
-    Otherwise we show a clear message.
-  */
+    const modal = document.createElement("div");
 
-  if (OWNER_CONTACT) {
+    modal.id = "businessModal";
+    modal.className = "custom-modal";
 
-    const message =
-      `Hello LocalLift! I want to promote my business.%0A%0A` +
-      `Business: ${encodeURIComponent(businessName)}%0A` +
-      `Plan: ${encodeURIComponent(plan)}%0A` +
-      `Contact: ${encodeURIComponent(phone)}`;
+    modal.innerHTML = `
+        <div class="modal-overlay" onclick="closeBusinessDetails()"></div>
 
+        <div class="modal-content">
 
-    const cleanNumber =
-      OWNER_CONTACT.replace(
-        /[^0-9+]/g,
-        ""
-      );
+            <button
+                class="modal-close"
+                onclick="closeBusinessDetails()"
+            >
+                ×
+            </button>
 
+            <div class="business-icon large">
+                ${getCategoryIcon(category)}
+            </div>
+
+            <p class="business-category">
+                ${category}
+            </p>
+
+            <h2>${name}</h2>
+
+            <p>📍 ${location}</p>
+
+            <p class="modal-description">
+                ${description}
+            </p>
+
+            ${
+                phone
+                    ? `
+                    <a
+                        class="primary-btn"
+                        href="tel:${phone}"
+                    >
+                        Call Business
+                    </a>
+                    `
+                    : ""
+            }
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function closeBusinessDetails() {
+    const modal =
+        document.getElementById("businessModal");
+
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ======================================================
+// FAVORITES
+// ======================================================
+
+function getFavorites() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("locallift_favorites") || "[]"
+        );
+    } catch {
+        return [];
+    }
+}
+
+function toggleFavorite(id) {
+    const favorites = getFavorites();
+
+    const index = favorites.indexOf(String(id));
+
+    if (index >= 0) {
+        favorites.splice(index, 1);
+        showToast("Removed from favorites.");
+    } else {
+        favorites.push(String(id));
+        showToast("Added to favorites ❤️", "success");
+    }
+
+    localStorage.setItem(
+        "locallift_favorites",
+        JSON.stringify(favorites)
+    );
+
+    updateFavoriteCount();
+    renderBusinesses();
+}
+
+function updateFavoriteCount() {
+    const count = getFavorites().length;
+
+    const elements = document.querySelectorAll(
+        ".favorite-count"
+    );
+
+    elements.forEach((element) => {
+        element.textContent = count;
+    });
+}
+
+// ======================================================
+// MONETIZATION / WHATSAPP
+// ======================================================
+
+function openPromotionRequest(plan) {
+    const existingModal =
+        document.getElementById("promotionModal");
+
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const safePlan = escapeHTML(plan);
+
+    const modal = document.createElement("div");
+
+    modal.id = "promotionModal";
+    modal.className = "custom-modal";
+
+    modal.innerHTML = `
+        <div
+            class="modal-overlay"
+            onclick="closePromotionRequest()"
+        ></div>
+
+        <div class="modal-content">
+
+            <button
+                class="modal-close"
+                onclick="closePromotionRequest()"
+            >
+                ×
+            </button>
+
+            <div class="business-icon large">
+                🚀
+            </div>
+
+            <h2>Promote Your Business</h2>
+
+            <p>
+                You selected the
+                <strong>${safePlan}</strong>
+                package.
+            </p>
+
+            <form
+                onsubmit="submitPromotionRequest(event)"
+            >
+
+                <input
+                    type="hidden"
+                    name="plan"
+                    value="${safePlan}"
+                >
+
+                <input
+                    type="text"
+                    name="businessName"
+                    placeholder="Business name"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="ownerName"
+                    placeholder="Your name"
+                    required
+                >
+
+                <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Your phone number"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Continue on WhatsApp
+                </button>
+
+            </form>
+
+            <small>
+                You'll be redirected to WhatsApp with your request prepared.
+            </small>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function closePromotionRequest() {
+    const modal =
+        document.getElementById("promotionModal");
+
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function submitPromotionRequest(event) {
+    event.preventDefault();
+
+    const form = event.target;
+
+    const plan = form.plan.value;
+    const businessName =
+        form.businessName.value.trim();
+
+    const ownerName =
+        form.ownerName.value.trim();
+
+    const phone =
+        form.phone.value.trim();
+
+    if (!businessName || !ownerName || !phone) {
+        showToast(
+            "Please complete all fields.",
+            "error"
+        );
+        return;
+    }
+
+    const message = `
+Hi LocalLift! 👋
+
+I want to promote my business.
+
+Business: ${businessName}
+Owner: ${ownerName}
+Phone: ${phone}
+Package: ${plan}
+
+Please send me the payment details and next steps.
+`.trim();
+
+    const whatsappURL =
+        `https://wa.me/${OWNER_CONTACT}?text=${encodeURIComponent(
+            message
+        )}`;
+
+    closePromotionRequest();
 
     window.open(
-      `https://wa.me/${cleanNumber.replace("+", "")}?text=${message}`,
-      "_blank"
+        whatsappURL,
+        "_blank",
+        "noopener,noreferrer"
     );
-
-
-    showToast(
-      "Opening your promotion request..."
-    );
-
-  } else {
-
-    showToast(
-      "Promotion request saved. Add your contact number in script.js to receive requests."
-    );
-
-  }
-
-
-  document
-    .getElementById(
-      "promotionForm"
-    )
-    .reset();
-
-
-  closePromotionModal();
-
 }
 
+// ======================================================
+// STATS
+// ======================================================
 
-/* =====================================================
-   ADD BUSINESS
-   ===================================================== */
+function updateStats() {
+    const businessCount =
+        document.querySelector(".business-count");
 
-async function addBusiness(
-  event
-) {
+    const categoryCount =
+        document.querySelector(".category-count");
 
-  event.preventDefault();
+    const locationCount =
+        document.querySelector(".location-count");
 
-
-  const form =
-    event.target;
-
-
-  const submitButton =
-    form.querySelector(
-      ".submit-btn"
-    );
-
-
-  const name =
-    document
-      .getElementById(
-        "businessName"
-      )
-      .value
-      .trim();
-
-
-  const category =
-    document
-      .getElementById(
-        "businessCategory"
-      )
-      .value;
-
-
-  const location =
-    document
-      .getElementById(
-        "businessLocation"
-      )
-      .value
-      .trim();
-
-
-  const phone =
-    document
-      .getElementById(
-        "businessPhone"
-      )
-      .value
-      .trim();
-
-
-  const description =
-    document
-      .getElementById(
-        "businessDescription"
-      )
-      .value
-      .trim();
-
-
-  if (
-    !name ||
-    !category ||
-    !location
-  ) {
-
-    showToast(
-      "Please fill in the required fields."
-    );
-
-    return;
-
-  }
-
-
-  const newBusiness = {
-
-    name: name,
-
-    category: category,
-
-    location: location,
-
-    phone: phone,
-
-    description:
-      description ||
-      "Local business on LocalLift."
-
-  };
-
-
-  try {
-
-    if (
-      !SUPABASE_KEY ||
-      SUPABASE_KEY ===
-        "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
-    ) {
-
-      throw new Error(
-        "Your Supabase publishable key is missing."
-      );
-
+    if (businessCount) {
+        businessCount.textContent =
+            businesses.length;
     }
 
-
-    if (submitButton) {
-
-      submitButton.disabled =
-        true;
-
-      submitButton.textContent =
-        "Adding...";
-
+    if (categoryCount) {
+        categoryCount.textContent =
+            new Set(
+                businesses
+                    .map((b) => b.category)
+                    .filter(Boolean)
+            ).size;
     }
 
-
-    const response =
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/Business`,
-        {
-
-          method: "POST",
-
-          headers: {
-
-            apikey:
-              SUPABASE_KEY,
-
-            Authorization:
-              `Bearer ${SUPABASE_KEY}`,
-
-            "Content-Type":
-              "application/json",
-
-            Prefer:
-              "return=representation"
-
-          },
-
-          body:
-            JSON.stringify(
-              newBusiness
-            )
-
-        }
-      );
-
-
-    if (!response.ok) {
-
-      const errorText =
-        await response.text();
-
-      throw new Error(
-        `Insert failed (${response.status}): ${errorText}`
-      );
-
+    if (locationCount) {
+        locationCount.textContent =
+            new Set(
+                businesses
+                    .map((b) => b.location)
+                    .filter(Boolean)
+            ).size;
     }
-
-
-    const savedBusinesses =
-      await response.json();
-
-
-    if (
-      Array.isArray(
-        savedBusinesses
-      ) &&
-      savedBusinesses.length > 0
-    ) {
-
-      businesses.push({
-
-        ...savedBusinesses[0],
-
-        icon:
-          getIcon(
-            savedBusinesses[0]
-              .category
-          ),
-
-        plan:
-          "free"
-
-      });
-
-    } else {
-
-      businesses.push({
-
-        ...newBusiness,
-
-        icon:
-          getIcon(
-            newBusiness.category
-          ),
-
-        plan:
-          "free"
-
-      });
-
-    }
-
-
-    form.reset();
-
-    closeModal();
-
-    updateStats();
-
-    searchBusinesses();
-
-
-    showToast(
-      "🎉 Your business has been added to LocalLift!"
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "LocalLift Supabase insert error:",
-      error
-    );
-
-
-    showToast(
-      "❌ Supabase error. Check the browser console for details."
-    );
-
-
-    console.error(
-      error.message
-    );
-
-
-  } finally {
-
-    if (submitButton) {
-
-      submitButton.disabled =
-        false;
-
-      submitButton.textContent =
-        "Add Business";
-
-    }
-
-  }
-
 }
 
+// ======================================================
+// LOADING
+// ======================================================
 
-/* =====================================================
-   TOAST
-   ===================================================== */
+function showLoading() {
+    if (!businessGrid) return;
 
-function showToast(
-  message
-) {
-
-  if (!toast) {
-    return;
-  }
-
-
-  toast.textContent =
-    message;
-
-
-  toast.classList.add(
-    "show"
-  );
-
-
-  clearTimeout(
-    toastTimer
-  );
-
-
-  toastTimer =
-    setTimeout(
-      function () {
-
-        toast.classList.remove(
-          "show"
-        );
-
-      },
-      3000
-    );
-
+    businessGrid.innerHTML = `
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading businesses...</p>
+        </div>
+    `;
 }
 
+// ======================================================
+// TOAST
+// ======================================================
 
-/* =====================================================
-   SCROLL HELPERS
-   ===================================================== */
+function showToast(message, type = "info") {
+    const oldToast =
+        document.querySelector(".locallift-toast");
 
-function scrollToBusinesses() {
-
-  const section =
-    document.getElementById(
-      "businesses"
-    );
-
-  if (section) {
-
-    section.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-
-function scrollToPricing() {
-
-  const section =
-    document.getElementById(
-      "pricing"
-    );
-
-  if (section) {
-
-    section.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-
-/* =====================================================
-   DARK MODE
-   ===================================================== */
-
-function loadTheme() {
-
-  const savedTheme =
-    localStorage.getItem(
-      "locallift_theme"
-    );
-
-
-  if (savedTheme === "dark") {
-
-    document.body.classList.add(
-      "dark"
-    );
-
-    if (themeToggle) {
-      themeToggle.textContent =
-        "☀";
+    if (oldToast) {
+        oldToast.remove();
     }
 
-  }
+    const toast = document.createElement("div");
 
+    toast.className =
+        `locallift-toast ${type}`;
+
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 20);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3500);
 }
 
+// ======================================================
+// SECURITY HELPERS
+// ======================================================
 
-function toggleTheme() {
-
-  const dark =
-    document.body.classList.toggle(
-      "dark"
-    );
-
-
-  localStorage.setItem(
-    "locallift_theme",
-    dark ? "dark" : "light"
-  );
-
-
-  if (themeToggle) {
-
-    themeToggle.textContent =
-      dark ? "☀" : "☾";
-
-  }
-
+function escapeHTML(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
-
-if (themeToggle) {
-
-  themeToggle.addEventListener(
-    "click",
-    toggleTheme
-  );
-
+function escapeJS(value) {
+    return String(value)
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'");
 }
 
+// ======================================================
+// GLOBAL FUNCTIONS
+// ======================================================
 
-/* =====================================================
-   MODAL CLICK OUTSIDE
-   ===================================================== */
-
-[
-  businessModal,
-  detailsModal,
-  promotionModal
-].forEach(
-  function (modalElement) {
-
-    if (!modalElement) {
-      return;
-    }
-
-
-    modalElement.addEventListener(
-      "click",
-      function (event) {
-
-        if (
-          event.target ===
-          modalElement
-        ) {
-
-          modalElement.classList.remove(
-            "show"
-          );
-
-        }
-
-      }
-    );
-
-  }
-);
-
-
-/* =====================================================
-   ESC KEY
-   ===================================================== */
-
-document.addEventListener(
-  "keydown",
-  function (event) {
-
-    if (event.key !== "Escape") {
-      return;
-    }
-
-    closeModal();
-    closeDetails();
-    closePromotionModal();
-
-  }
-);
-
-
-/* =====================================================
-   SORT EVENT
-   ===================================================== */
-
-if (sortFilter) {
-
-  sortFilter.addEventListener(
-    "change",
-    searchBusinesses
-  );
-
-}
-
-
-if (categoryFilter) {
-
-  categoryFilter.addEventListener(
-    "change",
-    function () {
-
-      const category =
-        categoryFilter.value;
-
-
-      document
-        .querySelectorAll(
-          ".category-btn"
-        )
-        .forEach(
-          function (button) {
-
-            button.classList.toggle(
-              "active",
-              button.dataset.category ===
-                category
-            );
-
-          }
-        );
-
-
-      searchBusinesses();
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   BACK TO TOP
-   ===================================================== */
-
-window.addEventListener(
-  "scroll",
-  function () {
-
-    if (!backTop) {
-      return;
-    }
-
-
-    backTop.classList.toggle(
-      "show",
-      window.scrollY > 500
-    );
-
-  }
-);
-
-
-/* =====================================================
-   GLOBAL FUNCTIONS FOR HTML
-   ===================================================== */
-
-window.openModal =
-  openModal;
-
-window.closeModal =
-  closeModal;
-
-window.addBusiness =
-  addBusiness;
-
-window.filterCategory =
-  filterCategory;
-
-window.searchBusinesses =
-  searchBusinesses;
-
-window.showDetails =
-  showDetails;
-
-window.closeDetails =
-  closeDetails;
-
-window.openPromotionRequest =
-  openPromotionRequest;
-
-window.closePromotionModal =
-  closePromotionModal;
-
-window.submitPromotionRequest =
-  submitPromotionRequest;
-
-window.scrollToBusinesses =
-  scrollToBusinesses;
-
-window.scrollToPricing =
-  scrollToPricing;
-
-
-/* =====================================================
-   START LOCALLIFT
-   ===================================================== */
-
-loadTheme();
-
-loadBusinesses();
+window.addBusiness = addBusiness;
+window.openBusinessDetails = openBusinessDetails;
+window.closeBusinessDetails = closeBusinessDetails;
+window.toggleFavorite = toggleFavorite;
+window.openPromotionRequest = openPromotionRequest;
+window.closePromotionRequest = closePromotionRequest;
+window.submitPromotionRequest = submitPromotionRequest;

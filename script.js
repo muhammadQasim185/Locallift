@@ -1,21 +1,16 @@
-/* =========================
-   LOCALIFT SUPABASE SETTINGS
-   ========================= */
+/* =========================================
+   LOCALIFT — SUPABASE CONFIG
+   ========================================= */
 
 const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co";
-
-/*
-  Paste your existing Supabase PUBLISHABLE key
-  between the quotation marks below.
-
-  Do NOT paste the key into ChatGPT.
-*/
 const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
 
+const TABLE_NAME = "Business";
 
-/* =========================
+
+/* =========================================
    DEFAULT BUSINESSES
-   ========================= */
+   ========================================= */
 
 const defaultBusinesses = [
   {
@@ -23,57 +18,51 @@ const defaultBusinesses = [
     category: "Restaurant",
     location: "Mirpur",
     phone: "",
-    description: "A cozy local café serving delicious food and drinks.",
-    icon: "☕"
+    description: "A cozy local café serving delicious food and drinks."
   },
   {
     name: "Pixel Tech",
     category: "Technology",
     location: "Mirpur",
     phone: "",
-    description: "Phones, computers, accessories and technology services.",
-    icon: "💻"
+    description: "Phones, computers, accessories and technology services."
   },
   {
     name: "Urban Threads",
     category: "Clothing",
     location: "Mirpur",
     phone: "",
-    description: "Trendy clothing and fashion for everyday style.",
-    icon: "👕"
+    description: "Trendy clothing and fashion for everyday style."
   },
   {
     name: "Glow Studio",
     category: "Beauty",
     location: "Mirpur",
     phone: "",
-    description: "Beauty and personal care services.",
-    icon: "✨"
+    description: "Beauty and personal care services."
   },
   {
     name: "QuickFix Services",
     category: "Services",
     location: "Mangla",
     phone: "",
-    description: "Reliable local repair and maintenance services.",
-    icon: "🔧"
+    description: "Reliable local repair and maintenance services."
   },
   {
     name: "Spice House",
     category: "Restaurant",
     location: "Jhelum",
     phone: "",
-    description: "Fresh and tasty local food for everyone.",
-    icon: "🍽️"
+    description: "Fresh and tasty local food for everyone."
   }
 ];
 
 let businesses = [...defaultBusinesses];
 
 
-/* =========================
+/* =========================================
    PAGE ELEMENTS
-   ========================= */
+   ========================================= */
 
 const businessList = document.getElementById("businessList");
 const resultCount = document.getElementById("resultCount");
@@ -82,15 +71,9 @@ const categoryFilter = document.getElementById("categoryFilter");
 const modal = document.getElementById("businessModal");
 
 
-/* =========================
-   HELPERS
-   ========================= */
-
-function escapeHTML(value) {
-  const div = document.createElement("div");
-  div.textContent = value == null ? "" : String(value);
-  return div.innerHTML;
-}
+/* =========================================
+   ICONS
+   ========================================= */
 
 function getIcon(category) {
   const icons = {
@@ -98,30 +81,39 @@ function getIcon(category) {
     Clothing: "👕",
     Technology: "💻",
     Beauty: "✨",
-    Services: "🔧"
+    Services: "🔧",
+    Grocery: "🛒",
+    Education: "📚",
+    Health: "🏥",
+    Hotel: "🏨",
+    Automotive: "🚗"
   };
 
   return icons[category] || "🏪";
 }
 
 
-/* =========================
-   LOAD BUSINESSES
-   ========================= */
+/* =========================================
+   SECURITY
+   ========================================= */
+
+function escapeHTML(value) {
+  const div = document.createElement("div");
+  div.textContent = value == null ? "" : String(value);
+  return div.innerHTML;
+}
+
+
+/* =========================================
+   LOAD BUSINESSES FROM SUPABASE
+   ========================================= */
 
 async function loadBusinesses() {
 
   try {
 
-    if (
-      !SUPABASE_KEY ||
-      SUPABASE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
-    ) {
-      throw new Error("Supabase publishable key has not been added.");
-    }
-
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/Business?select=*`,
+      `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?select=*`,
       {
         method: "GET",
         headers: {
@@ -154,7 +146,7 @@ async function loadBusinesses() {
 
   } catch (error) {
 
-    console.error("LocalLift Supabase load error:", error);
+    console.error("LocalLift loading error:", error);
 
     businesses = [...defaultBusinesses];
 
@@ -164,9 +156,9 @@ async function loadBusinesses() {
 }
 
 
-/* =========================
-   RENDER BUSINESSES
-   ========================= */
+/* =========================================
+   RENDER BUSINESS CARDS
+   ========================================= */
 
 function renderBusinesses(list = businesses) {
 
@@ -211,48 +203,57 @@ function renderBusinesses(list = businesses) {
         ${icon}
       </div>
 
-      <h3>${name}</h3>
+      <div class="business-card-content">
 
-      <span class="business-category">
-        ${category}
-      </span>
+        <h3>${name}</h3>
 
-      <p class="business-location">
-        📍 ${location}
-      </p>
+        <span class="business-category">
+          ${category}
+        </span>
 
-      <p class="business-description">
-        ${description}
-      </p>
+        <p class="business-location">
+          📍 ${location}
+        </p>
 
-      <div class="card-actions">
+        <p class="business-description">
+          ${description}
+        </p>
 
-        ${
-          phone
-            ? `<a class="call-btn" href="tel:${phone}">📞 Call</a>`
-            : `<button class="call-btn details-button" type="button">📋 Details</button>`
-        }
+        <div class="card-actions">
 
-        <button
-          class="view-btn details-button"
-          type="button"
-        >
-          View
-        </button>
+          ${
+            phone
+              ? `
+                <a
+                  class="call-btn"
+                  href="tel:${phone}"
+                >
+                  📞 Call
+                </a>
+              `
+              : ""
+          }
+
+          <button
+            class="view-btn details-button"
+            type="button"
+          >
+            View Details
+          </button>
+
+        </div>
 
       </div>
     `;
 
-    const detailButtons =
-      card.querySelectorAll(".details-button");
+    const detailButton =
+      card.querySelector(".details-button");
 
-    detailButtons.forEach(function (button) {
-
-      button.addEventListener("click", function () {
+    if (detailButton) {
+      detailButton.addEventListener("click", function () {
         showDetails(business);
       });
-
-    });
+    }
 
     businessList.appendChild(card);
 
@@ -260,9 +261,9 @@ function renderBusinesses(list = businesses) {
 }
 
 
-/* =========================
+/* =========================================
    SEARCH
-   ========================= */
+   ========================================= */
 
 function searchBusinesses() {
 
@@ -299,9 +300,9 @@ function searchBusinesses() {
 }
 
 
-/* =========================
+/* =========================================
    CATEGORY FILTER
-   ========================= */
+   ========================================= */
 
 function filterCategory(category) {
 
@@ -326,29 +327,40 @@ function filterCategory(category) {
 }
 
 
-/* =========================
-   DETAILS
-   ========================= */
+/* =========================================
+   BUSINESS DETAILS
+   ========================================= */
 
 function showDetails(business) {
 
-  let message =
-    `${business.name}\n\n` +
-    `Category: ${business.category}\n` +
-    `Location: ${business.location}\n\n` +
-    `${business.description}`;
+  const name =
+    business.name || "Business";
 
-  if (business.phone) {
-    message += `\n\nPhone: ${business.phone}`;
-  }
+  const category =
+    business.category || "Not specified";
 
-  alert(message);
+  const location =
+    business.location || "Not specified";
+
+  const phone =
+    business.phone || "Not available";
+
+  const description =
+    business.description || "No description available.";
+
+  alert(
+    `${name}\n\n` +
+    `Category: ${category}\n` +
+    `Location: ${location}\n` +
+    `Phone: ${phone}\n\n` +
+    `${description}`
+  );
 }
 
 
-/* =========================
+/* =========================================
    OPEN MODAL
-   ========================= */
+   ========================================= */
 
 function openModal() {
 
@@ -361,9 +373,9 @@ function openModal() {
 }
 
 
-/* =========================
+/* =========================================
    CLOSE MODAL
-   ========================= */
+   ========================================= */
 
 function closeModal() {
 
@@ -375,9 +387,9 @@ function closeModal() {
 }
 
 
-/* =========================
-   CLOSE WHEN CLICKING OUTSIDE
-   ========================= */
+/* =========================================
+   CLOSE MODAL OUTSIDE CLICK
+   ========================================= */
 
 if (modal) {
 
@@ -392,203 +404,59 @@ if (modal) {
 }
 
 
-/* =========================
+/* =========================================
    ADD BUSINESS
-   ========================= */
+   ========================================= */
 
 async function addBusiness(event) {
 
   event.preventDefault();
 
   const form = event.target;
+
   const submitButton =
     form.querySelector(".submit-btn");
 
-  const name =
-    document.getElementById("businessName").value.trim();
+  const nameElement =
+    document.getElementById("businessName");
 
-  const category =
-    document.getElementById("businessCategory").value;
+  const categoryElement =
+    document.getElementById("businessCategory");
 
-  const location =
-    document.getElementById("businessLocation").value.trim();
+  const locationElement =
+    document.getElementById("businessLocation");
 
-  const phone =
-    document.getElementById("businessPhone").value.trim();
+  const phoneElement =
+    document.getElementById("businessPhone");
 
-  const description =
-    document.getElementById("businessDescription").value.trim();
+  const descriptionElement =
+    document.getElementById("businessDescription");
 
 
-  if (!name || !category || !location) {
+  if (
+    !nameElement ||
+    !categoryElement ||
+    !locationElement ||
+    !phoneElement ||
+    !descriptionElement
+  ) {
 
-    alert("Please fill in the required fields.");
+    alert(
+      "Some form fields are missing. Please check index.html."
+    );
 
     return;
   }
 
 
-  const newBusiness = {
-    name: name,
-    category: category,
-    location: location,
-    phone: phone,
-    description:
-      description || "Local business on LocalLift."
-  };
+  const name =
+    nameElement.value.trim();
 
+  const category =
+    categoryElement.value.trim();
 
-  try {
+  const location =
+    locationElement.value.trim();
 
-    if (
-      !SUPABASE_KEY ||
-      SUPABASE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
-    ) {
-      throw new Error(
-        "Your Supabase publishable key is missing from script.js."
-      );
-    }
-
-
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Adding...";
-    }
-
-
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/Business`,
-      {
-        method: "POST",
-
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation"
-        },
-
-        body: JSON.stringify(newBusiness)
-      }
-    );
-
-
-    if (!response.ok) {
-
-      const errorText =
-        await response.text();
-
-      throw new Error(
-        `Insert failed (${response.status}): ${errorText}`
-      );
-    }
-
-
-    const savedBusinesses =
-      await response.json();
-
-
-    if (
-      Array.isArray(savedBusinesses) &&
-      savedBusinesses.length > 0
-    ) {
-
-      const savedBusiness =
-        savedBusinesses[0];
-
-      businesses.push({
-        ...savedBusiness,
-        icon: getIcon(savedBusiness.category)
-      });
-
-    } else {
-
-      businesses.push({
-        ...newBusiness,
-        icon: getIcon(newBusiness.category)
-      });
-
-    }
-
-
-    form.reset();
-
-    closeModal();
-
-    renderBusinesses();
-
-    alert(
-      "🎉 Your business has been added to LocalLift!"
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "LocalLift Supabase insert error:",
-      error
-    );
-
-    /*
-      IMPORTANT:
-      This shows the REAL error instead of
-      hiding it behind "check your connection".
-    */
-
-    alert(
-      "❌ Supabase error:\n\n" +
-      error.message
-    );
-
-
-  } finally {
-
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = "Add Business";
-    }
-
-  }
-}
-
-
-/* =========================
-   SEARCH EVENTS
-   ========================= */
-
-if (searchInput) {
-
-  searchInput.addEventListener(
-    "input",
-    searchBusinesses
-  );
-
-}
-
-if (categoryFilter) {
-
-  categoryFilter.addEventListener(
-    "change",
-    searchBusinesses
-  );
-
-}
-
-
-/* =========================
-   MAKE BUTTON FUNCTIONS
-   AVAILABLE TO HTML
-   ========================= */
-
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.addBusiness = addBusiness;
-window.filterCategory = filterCategory;
-window.searchBusinesses = searchBusinesses;
-
-
-/* =========================
-   START WEBSITE
-   ========================= */
-
-loadBusinesses();
+  const phone =
+   

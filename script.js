@@ -1,11 +1,11 @@
-// ======================================================
-// LOCALLIFT - SCRIPT.JS
-// ======================================================
+/* =========================================================
+   LOCALLIFT — SCRIPT.JS
+   ========================================================= */
 
 
-// ======================================================
-// CONFIG
-// ======================================================
+/* =========================================================
+   CONFIG
+   ========================================================= */
 
 const SUPABASE_URL =
     "https://lhfpowxkmbyyewwxihtw.supabase.co";
@@ -17,161 +17,130 @@ const OWNER_CONTACT =
     "923498092089";
 
 
-// ======================================================
-// DATA
-// ======================================================
+/* =========================================================
+   DATA
+   ========================================================= */
 
 let businesses = [];
 let filteredBusinesses = [];
 
-
-// ======================================================
-// DEMO DATA
-// ======================================================
-
 const demoBusinesses = [
-
     {
         id: "demo-1",
         name: "LocalLift Electronics",
         category: "Electronics",
         location: "Mirpur",
         phone: "03000000000",
-        description:
-            "Phones, accessories and everyday electronics.",
+        description: "Phones, accessories and everyday electronics.",
         plan: "premium"
     },
-
     {
         id: "demo-2",
         name: "Mangla Sports Hub",
         category: "Sports",
         location: "Mangla",
         phone: "03111111111",
-        description:
-            "Cricket equipment, sports accessories and more.",
+        description: "Cricket equipment, sports accessories and more.",
         plan: "featured"
     },
-
     {
         id: "demo-3",
         name: "Mirpur Fashion Store",
         category: "Fashion",
         location: "Mirpur",
         phone: "03222222222",
-        description:
-            "Modern clothing and fashion accessories.",
+        description: "Modern clothing and fashion accessories.",
         plan: "free"
     }
-
 ];
 
 
-// ======================================================
-// START
-// ======================================================
+/* =========================================================
+   START
+   ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        setupEvents();
+    setupEvents();
 
-        loadBusinesses();
+    loadBusinesses();
 
-        updateFavoriteCount();
+    updateFavoriteCount();
 
-    }
-);
+});
 
 
-// ======================================================
-// EVENT SETUP
-// ======================================================
+/* =========================================================
+   EVENTS
+   ========================================================= */
 
 function setupEvents() {
 
     const searchInput =
-        document.getElementById(
-            "searchInput"
-        );
+        document.getElementById("searchInput");
 
     const categoryFilter =
-        document.getElementById(
-            "categoryFilter"
-        );
+        document.getElementById("categoryFilter");
 
     const locationFilter =
-        document.getElementById(
-            "locationFilter"
-        );
+        document.getElementById("locationFilter");
 
     const sortSelect =
-        document.getElementById(
-            "sortSelect"
-        );
+        document.getElementById("sortSelect");
+
+    const resetFilters =
+        document.getElementById("resetFilters");
 
     const businessForm =
-        document.getElementById(
-            "businessForm"
-        );
+        document.getElementById("businessForm");
 
     const featuredBtn =
-        document.getElementById(
-            "featuredBtn"
-        );
-
-    const premiumBtn =
-        document.getElementById(
-            "premiumBtn"
-        );
+        document.getElementById("featuredBtn");
 
     const mobileMenuBtn =
-        document.getElementById(
-            "mobileMenuBtn"
-        );
+        document.getElementById("mobileMenuBtn");
 
     const mobileMenu =
-        document.getElementById(
-            "mobileMenu"
-        );
+        document.getElementById("mobileMenu");
 
 
     if (searchInput) {
-
         searchInput.addEventListener(
             "input",
             applyFilters
         );
-
     }
 
 
     if (categoryFilter) {
-
         categoryFilter.addEventListener(
             "change",
             applyFilters
         );
-
     }
 
 
     if (locationFilter) {
-
         locationFilter.addEventListener(
             "change",
             applyFilters
         );
-
     }
 
 
     if (sortSelect) {
-
         sortSelect.addEventListener(
             "change",
             applyFilters
+        );
+    }
+
+
+    if (resetFilters) {
+
+        resetFilters.addEventListener(
+            "click",
+            resetAllFilters
         );
 
     }
@@ -203,35 +172,13 @@ function setupEvents() {
     }
 
 
-    if (premiumBtn) {
-
-        premiumBtn.addEventListener(
-            "click",
-            function () {
-
-                showToast(
-                    "Premium promotion is coming soon.",
-                    "info"
-                );
-
-            }
-        );
-
-    }
-
-
-    if (
-        mobileMenuBtn &&
-        mobileMenu
-    ) {
+    if (mobileMenuBtn && mobileMenu) {
 
         mobileMenuBtn.addEventListener(
             "click",
             function () {
 
-                mobileMenu.classList.toggle(
-                    "active"
-                );
+                mobileMenu.classList.toggle("active");
 
             }
         );
@@ -239,31 +186,29 @@ function setupEvents() {
 
         mobileMenu
             .querySelectorAll("a")
-            .forEach(
-                function (link) {
+            .forEach(function (link) {
 
-                    link.addEventListener(
-                        "click",
-                        function () {
+                link.addEventListener(
+                    "click",
+                    function () {
 
-                            mobileMenu.classList.remove(
-                                "active"
-                            );
+                        mobileMenu.classList.remove(
+                            "active"
+                        );
 
-                        }
-                    );
+                    }
+                );
 
-                }
-            );
+            });
 
     }
 
 }
 
 
-// ======================================================
-// LOAD BUSINESSES
-// ======================================================
+/* =========================================================
+   LOAD BUSINESSES
+   ========================================================= */
 
 async function loadBusinesses() {
 
@@ -271,24 +216,20 @@ async function loadBusinesses() {
 
     try {
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/Business?select=*`,
-                {
-                    method: "GET",
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/Business?select=*`,
+            {
+                method: "GET",
 
-                    headers: {
-                        apikey:
-                            SUPABASE_KEY,
-
-                        Authorization:
-                            `Bearer ${SUPABASE_KEY}`,
-
-                        "Content-Type":
-                            "application/json"
-                    }
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization:
+                        `Bearer ${SUPABASE_KEY}`,
+                    "Content-Type":
+                        "application/json"
                 }
-            );
+            }
+        );
 
 
         if (!response.ok) {
@@ -338,7 +279,7 @@ async function loadBusinesses() {
     } catch (error) {
 
         console.error(
-            "Supabase error:",
+            "LocalLift Supabase error:",
             error
         );
 
@@ -346,7 +287,6 @@ async function loadBusinesses() {
         businesses = [
             ...demoBusinesses
         ];
-
 
         filteredBusinesses = [
             ...businesses
@@ -372,9 +312,9 @@ async function loadBusinesses() {
 }
 
 
-// ======================================================
-// RENDER
-// ======================================================
+/* =========================================================
+   RENDER
+   ========================================================= */
 
 function renderBusinesses() {
 
@@ -387,16 +327,39 @@ function renderBusinesses() {
     if (!grid) return;
 
 
-    if (
-        filteredBusinesses.length === 0
-    ) {
+    const resultsLabel =
+        document.getElementById(
+            "resultsLabel"
+        );
+
+
+    if (resultsLabel) {
+
+        if (filteredBusinesses.length === 0) {
+
+            resultsLabel.textContent =
+                "No results found";
+
+        } else {
+
+            resultsLabel.textContent =
+                `${filteredBusinesses.length} business${
+                    filteredBusinesses.length === 1
+                        ? ""
+                        : "es"
+                }`;
+
+        }
+
+    }
+
+
+    if (filteredBusinesses.length === 0) {
 
         grid.innerHTML = `
             <div class="empty-state">
                 <h3>No businesses found</h3>
-                <p>
-                    Try another search or filter.
-                </p>
+                <p>Try changing your search or filters.</p>
             </div>
         `;
 
@@ -407,21 +370,17 @@ function renderBusinesses() {
 
     grid.innerHTML =
         filteredBusinesses
-            .map(
-                createBusinessCard
-            )
+            .map(createBusinessCard)
             .join("");
 
 }
 
 
-// ======================================================
-// BUSINESS CARD
-// ======================================================
+/* =========================================================
+   BUSINESS CARD
+   ========================================================= */
 
-function createBusinessCard(
-    business
-) {
+function createBusinessCard(business) {
 
     const id =
         String(
@@ -480,43 +439,45 @@ function createBusinessCard(
 
     if (plan === "premium") {
 
-        badge = `
-            <span class="business-badge premium">
+        badge =
+            `<span class="business-badge premium">
                 PREMIUM
-            </span>
-        `;
+            </span>`;
 
-    }
+    } else if (plan === "featured") {
 
-
-    if (plan === "featured") {
-
-        badge = `
-            <span class="business-badge featured">
+        badge =
+            `<span class="business-badge featured">
                 FEATURED
-            </span>
-        `;
+            </span>`;
 
     }
+
+
+    const icon =
+        getCategoryIcon(
+            business.category
+        );
 
 
     return `
-
         <article class="business-card">
 
             <div class="business-card-top">
 
                 <div class="business-icon">
-                    ${getCategoryIcon(category)}
+                    ${icon}
                 </div>
 
                 ${badge}
 
                 <button
                     type="button"
-                    class="favorite-btn ${favorite ? "active" : ""}"
-                    onclick="toggleFavorite('${escapeJS(id)}')"
-                    aria-label="Favorite"
+                    class="favorite-btn ${
+                        favorite ? "active" : ""
+                    }"
+                    data-favorite-id="${escapeHTML(id)}"
+                    aria-label="Favorite business"
                 >
                     ${favorite ? "♥" : "♡"}
                 </button>
@@ -548,7 +509,7 @@ function createBusinessCard(
                     <button
                         type="button"
                         class="details-btn"
-                        onclick="openBusinessDetails('${escapeJS(id)}')"
+                        data-details-id="${escapeHTML(id)}"
                     >
                         View Details
                     </button>
@@ -572,19 +533,59 @@ function createBusinessCard(
             </div>
 
         </article>
-
     `;
 
 }
 
 
-// ======================================================
-// CATEGORY ICON
-// ======================================================
+/* =========================================================
+   CARD BUTTON EVENTS
+   ========================================================= */
 
-function getCategoryIcon(
-    category
-) {
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const favoriteButton =
+            event.target.closest(
+                "[data-favorite-id]"
+            );
+
+
+        if (favoriteButton) {
+
+            toggleFavorite(
+                favoriteButton.dataset.favoriteId
+            );
+
+            return;
+
+        }
+
+
+        const detailsButton =
+            event.target.closest(
+                "[data-details-id]"
+            );
+
+
+        if (detailsButton) {
+
+            openBusinessDetails(
+                detailsButton.dataset.detailsId
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CATEGORY ICON
+   ========================================================= */
+
+function getCategoryIcon(category) {
 
     const value =
         String(
@@ -594,9 +595,10 @@ function getCategoryIcon(
 
     if (
         value.includes("food") ||
-        value.includes("restaurant")
+        value.includes("restaurant") ||
+        value.includes("cafe")
     ) {
-        return "🍽️";
+        return "FOOD";
     }
 
 
@@ -604,38 +606,40 @@ function getCategoryIcon(
         value.includes("shop") ||
         value.includes("store")
     ) {
-        return "🛍️";
+        return "SHOP";
     }
 
 
     if (
-        value.includes("fashion")
+        value.includes("fashion") ||
+        value.includes("clothing")
     ) {
-        return "👕";
+        return "STYLE";
     }
 
 
     if (
         value.includes("electronic") ||
-        value.includes("mobile") ||
-        value.includes("phone")
+        value.includes("mobile")
     ) {
-        return "📱";
+        return "TECH";
     }
 
 
     if (
-        value.includes("sport")
+        value.includes("sport") ||
+        value.includes("cricket")
     ) {
-        return "🏏";
+        return "SPORT";
     }
 
 
     if (
         value.includes("education") ||
-        value.includes("school")
+        value.includes("school") ||
+        value.includes("academy")
     ) {
-        return "📚";
+        return "EDU";
     }
 
 
@@ -643,16 +647,16 @@ function getCategoryIcon(
         value.includes("beauty") ||
         value.includes("salon")
     ) {
-        return "💈";
+        return "BEAUTY";
     }
 
 
     if (
         value.includes("medical") ||
-        value.includes("hospital") ||
-        value.includes("doctor")
+        value.includes("clinic") ||
+        value.includes("hospital")
     ) {
-        return "🏥";
+        return "CARE";
     }
 
 
@@ -660,25 +664,26 @@ function getCategoryIcon(
         value.includes("car") ||
         value.includes("auto")
     ) {
-        return "🚗";
+        return "AUTO";
     }
 
 
     if (
-        value.includes("hotel")
+        value.includes("hotel") ||
+        value.includes("guest")
     ) {
-        return "🏨";
+        return "STAY";
     }
 
 
-    return "🏢";
+    return "LOCAL";
 
 }
 
 
-// ======================================================
-// FILTERS
-// ======================================================
+/* =========================================================
+   FILTERING
+   ========================================================= */
 
 function applyFilters() {
 
@@ -687,10 +692,12 @@ function applyFilters() {
             "searchInput"
         );
 
+
     const categoryFilter =
         document.getElementById(
             "categoryFilter"
         );
+
 
     const locationFilter =
         document.getElementById(
@@ -785,9 +792,68 @@ function applyFilters() {
 }
 
 
-// ======================================================
-// SORT
-// ======================================================
+/* =========================================================
+   RESET
+   ========================================================= */
+
+function resetAllFilters() {
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+    const categoryFilter =
+        document.getElementById(
+            "categoryFilter"
+        );
+
+    const locationFilter =
+        document.getElementById(
+            "locationFilter"
+        );
+
+    const sortSelect =
+        document.getElementById(
+            "sortSelect"
+        );
+
+
+    if (searchInput) {
+        searchInput.value = "";
+    }
+
+
+    if (categoryFilter) {
+        categoryFilter.value = "";
+    }
+
+
+    if (locationFilter) {
+        locationFilter.value = "";
+    }
+
+
+    if (sortSelect) {
+        sortSelect.value = "featured";
+    }
+
+
+    filteredBusinesses = [
+        ...businesses
+    ];
+
+
+    sortBusinesses();
+
+    renderBusinesses();
+
+}
+
+
+/* =========================================================
+   SORT
+   ========================================================= */
 
 function sortBusinesses() {
 
@@ -853,21 +919,17 @@ function sortBusinesses() {
         filteredBusinesses.sort(
             function (a, b) {
 
-                const planA =
-                    String(
-                        a.plan || "free"
-                    ).toLowerCase();
-
-
-                const planB =
-                    String(
-                        b.plan || "free"
-                    ).toLowerCase();
-
-
                 return (
-                    (rank[planB] || 1) -
-                    (rank[planA] || 1)
+                    (rank[
+                        String(
+                            b.plan || "free"
+                        ).toLowerCase()
+                    ] || 1) -
+                    (rank[
+                        String(
+                            a.plan || "free"
+                        ).toLowerCase()
+                    ] || 1)
                 );
 
             }
@@ -878,9 +940,9 @@ function sortBusinesses() {
 }
 
 
-// ======================================================
-// FILTER OPTIONS
-// ======================================================
+/* =========================================================
+   FILTER OPTIONS
+   ========================================================= */
 
 function populateFilters() {
 
@@ -902,20 +964,24 @@ function populateFilters() {
             ...new Set(
                 businesses
                     .map(
-                        function (business) {
-                            return business.category;
-                        }
+                        business =>
+                            String(
+                                business.category || ""
+                            ).trim()
                     )
                     .filter(Boolean)
             )
-        ].sort();
+        ].sort(
+            function (a, b) {
+                return a.localeCompare(b);
+            }
+        );
 
 
         categoryFilter.innerHTML =
             `<option value="">
                 All Categories
             </option>` +
-
             categories
                 .map(
                     function (category) {
@@ -939,20 +1005,24 @@ function populateFilters() {
             ...new Set(
                 businesses
                     .map(
-                        function (business) {
-                            return business.location;
-                        }
+                        business =>
+                            String(
+                                business.location || ""
+                            ).trim()
                     )
                     .filter(Boolean)
             )
-        ].sort();
+        ].sort(
+            function (a, b) {
+                return a.localeCompare(b);
+            }
+        );
 
 
         locationFilter.innerHTML =
             `<option value="">
                 All Locations
             </option>` +
-
             locations
                 .map(
                     function (location) {
@@ -972,13 +1042,11 @@ function populateFilters() {
 }
 
 
-// ======================================================
-// ADD BUSINESS
-// ======================================================
+/* =========================================================
+   ADD BUSINESS
+   ========================================================= */
 
-async function addBusiness(
-    event
-) {
+async function addBusiness(event) {
 
     event.preventDefault();
 
@@ -987,24 +1055,40 @@ async function addBusiness(
         event.target;
 
 
+    const button =
+        document.getElementById(
+            "addBusinessBtn"
+        );
+
+
     const name =
-        form.name?.value.trim();
+        String(
+            form.elements.name?.value || ""
+        ).trim();
 
 
     const category =
-        form.category?.value.trim();
+        String(
+            form.elements.category?.value || ""
+        ).trim();
 
 
     const location =
-        form.location?.value.trim();
+        String(
+            form.elements.location?.value || ""
+        ).trim();
 
 
     const phone =
-        form.phone?.value.trim();
+        String(
+            form.elements.phone?.value || ""
+        ).trim();
 
 
     const description =
-        form.description?.value.trim();
+        String(
+            form.elements.description?.value || ""
+        ).trim();
 
 
     if (
@@ -1014,7 +1098,7 @@ async function addBusiness(
     ) {
 
         showToast(
-            "Please fill in all required fields.",
+            "Please fill in the required fields.",
             "error"
         );
 
@@ -1031,12 +1115,21 @@ async function addBusiness(
 
         location: location,
 
-        phone: phone || "",
+        phone: phone,
 
-        description:
-            description || ""
+        description: description
 
     };
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.innerHTML =
+            `<span>Adding...</span>`;
+
+    }
 
 
     try {
@@ -1045,30 +1138,22 @@ async function addBusiness(
             await fetch(
                 `${SUPABASE_URL}/rest/v1/Business`,
                 {
-
                     method: "POST",
 
                     headers: {
-
-                        apikey:
-                            SUPABASE_KEY,
-
+                        apikey: SUPABASE_KEY,
                         Authorization:
                             `Bearer ${SUPABASE_KEY}`,
-
                         "Content-Type":
                             "application/json",
-
                         Prefer:
                             "return=representation"
-
                     },
 
                     body:
                         JSON.stringify(
                             businessData
                         )
-
                 }
             );
 
@@ -1077,11 +1162,6 @@ async function addBusiness(
 
             const error =
                 await response.text();
-
-            console.error(
-                "Supabase insert error:",
-                error
-            );
 
             throw new Error(error);
 
@@ -1092,21 +1172,12 @@ async function addBusiness(
 
 
         showToast(
-            "Your business has been added to LocalLift! 🔥",
+            "Your business has been added to LocalLift!",
             "success"
         );
 
 
         await loadBusinesses();
-
-
-        document
-            .getElementById(
-                "businesses"
-            )
-            ?.scrollIntoView({
-                behavior: "smooth"
-            });
 
 
     } catch (error) {
@@ -1122,42 +1193,42 @@ async function addBusiness(
             "error"
         );
 
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.innerHTML =
+                `<span>Add Business</span>
+                 <span>→</span>`;
+
+        }
+
     }
 
 }
 
 
-// ======================================================
-// BUSINESS DETAILS
-// ======================================================
+/* =========================================================
+   BUSINESS DETAILS
+   ========================================================= */
 
-function openBusinessDetails(
-    id
-) {
+function openBusinessDetails(id) {
 
     const business =
         businesses.find(
             function (item) {
 
-                return (
-                    String(item.id) ===
-                    String(id)
-                );
+                return String(
+                    item.id
+                ) === String(id);
 
             }
         );
 
 
-    if (!business) {
-
-        showToast(
-            "Business not found.",
-            "error"
-        );
-
-        return;
-
-    }
+    if (!business) return;
 
 
     closeBusinessDetails();
@@ -1212,11 +1283,17 @@ function openBusinessDetails(
         );
 
 
+    const icon =
+        getCategoryIcon(
+            business.category
+        );
+
+
     modal.innerHTML = `
 
         <div
             class="modal-overlay"
-            onclick="closeBusinessDetails()"
+            data-close-business="true"
         ></div>
 
 
@@ -1225,14 +1302,14 @@ function openBusinessDetails(
             <button
                 type="button"
                 class="modal-close"
-                onclick="closeBusinessDetails()"
+                id="businessModalClose"
             >
                 ×
             </button>
 
 
             <div class="business-icon large">
-                ${getCategoryIcon(category)}
+                ${icon}
             </div>
 
 
@@ -1278,12 +1355,44 @@ function openBusinessDetails(
         modal
     );
 
+
+    const closeButton =
+        document.getElementById(
+            "businessModalClose"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeBusinessDetails
+        );
+
+    }
+
+
+    const overlay =
+        modal.querySelector(
+            "[data-close-business]"
+        );
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeBusinessDetails
+        );
+
+    }
+
 }
 
 
-// ======================================================
-// CLOSE BUSINESS DETAILS
-// ======================================================
+/* =========================================================
+   CLOSE BUSINESS DETAILS
+   ========================================================= */
 
 function closeBusinessDetails() {
 
@@ -1302,9 +1411,9 @@ function closeBusinessDetails() {
 }
 
 
-// ======================================================
-// FAVORITES
-// ======================================================
+/* =========================================================
+   FAVORITES
+   ========================================================= */
 
 function getFavorites() {
 
@@ -1316,20 +1425,21 @@ function getFavorites() {
             );
 
 
-        const favorites =
+        const parsed =
             JSON.parse(
                 saved || "[]"
             );
 
 
         return Array.isArray(
-            favorites
+            parsed
         )
-            ? favorites
+            ? parsed.map(
+                String
+            )
             : [];
 
-
-    } catch (error) {
+    } catch {
 
         return [];
 
@@ -1338,13 +1448,7 @@ function getFavorites() {
 }
 
 
-// ======================================================
-// TOGGLE FAVORITE
-// ======================================================
-
-function toggleFavorite(
-    id
-) {
+function toggleFavorite(id) {
 
     const favorites =
         getFavorites();
@@ -1372,7 +1476,6 @@ function toggleFavorite(
             "Removed from favorites."
         );
 
-
     } else {
 
         favorites.push(
@@ -1381,7 +1484,7 @@ function toggleFavorite(
 
 
         showToast(
-            "Added to favorites ❤️",
+            "Added to favorites.",
             "success"
         );
 
@@ -1402,10 +1505,6 @@ function toggleFavorite(
 
 }
 
-
-// ======================================================
-// FAVORITE COUNT
-// ======================================================
 
 function updateFavoriteCount() {
 
@@ -1429,22 +1528,13 @@ function updateFavoriteCount() {
 }
 
 
-// ======================================================
-// PROMOTION
-// ======================================================
+/* =========================================================
+   PROMOTION MODAL
+   ========================================================= */
 
-function openPromotionRequest(
-    plan
-) {
+function openPromotionRequest(plan) {
 
     closePromotionRequest();
-
-
-    const selectedPlan =
-        String(
-            plan ||
-            "Featured — Rs. 500/month"
-        );
 
 
     const modal =
@@ -1465,7 +1555,7 @@ function openPromotionRequest(
 
         <div
             class="modal-overlay"
-            onclick="closePromotionRequest()"
+            data-close-promotion="true"
         ></div>
 
 
@@ -1474,26 +1564,31 @@ function openPromotionRequest(
             <button
                 type="button"
                 class="modal-close"
-                onclick="closePromotionRequest()"
+                id="promotionModalClose"
             >
                 ×
             </button>
 
 
             <div class="business-icon large">
-                🚀
+                PRO
             </div>
 
 
+            <p class="business-category">
+                PROMOTION REQUEST
+            </p>
+
+
             <h2>
-                Promote Your Business
+                Get Your Business Featured
             </h2>
 
 
             <p>
-                You selected:
+                Selected package:
                 <strong>
-                    ${escapeHTML(selectedPlan)}
+                    ${escapeHTML(plan)}
                 </strong>
             </p>
 
@@ -1505,7 +1600,7 @@ function openPromotionRequest(
                 <input
                     type="hidden"
                     name="plan"
-                    value="${escapeHTML(selectedPlan)}"
+                    value="${escapeHTML(plan)}"
                 >
 
 
@@ -1513,7 +1608,6 @@ function openPromotionRequest(
                     type="text"
                     name="businessName"
                     placeholder="Business name"
-                    autocomplete="organization"
                     required
                 >
 
@@ -1522,7 +1616,6 @@ function openPromotionRequest(
                     type="text"
                     name="ownerName"
                     placeholder="Owner name"
-                    autocomplete="name"
                     required
                 >
 
@@ -1531,7 +1624,6 @@ function openPromotionRequest(
                     type="tel"
                     name="phone"
                     placeholder="Phone number"
-                    autocomplete="tel"
                     required
                 >
 
@@ -1539,14 +1631,15 @@ function openPromotionRequest(
                 <button
                     type="submit"
                 >
-                    Send Request on WhatsApp
+                    Continue to WhatsApp →
                 </button>
 
             </form>
 
 
             <p class="promotion-note">
-                WhatsApp will open with your request ready to send.
+                Your request will open in WhatsApp with
+                the information you provide.
             </p>
 
         </div>
@@ -1557,6 +1650,38 @@ function openPromotionRequest(
     document.body.appendChild(
         modal
     );
+
+
+    const closeButton =
+        document.getElementById(
+            "promotionModalClose"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closePromotionRequest
+        );
+
+    }
+
+
+    const overlay =
+        modal.querySelector(
+            "[data-close-promotion]"
+        );
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closePromotionRequest
+        );
+
+    }
 
 
     const form =
@@ -1577,9 +1702,9 @@ function openPromotionRequest(
 }
 
 
-// ======================================================
-// CLOSE PROMOTION
-// ======================================================
+/* =========================================================
+   CLOSE PROMOTION MODAL
+   ========================================================= */
 
 function closePromotionRequest() {
 
@@ -1598,13 +1723,11 @@ function closePromotionRequest() {
 }
 
 
-// ======================================================
-// SUBMIT PROMOTION
-// ======================================================
+/* =========================================================
+   WHATSAPP PROMOTION REQUEST
+   ========================================================= */
 
-function submitPromotionRequest(
-    event
-) {
+function submitPromotionRequest(event) {
 
     event.preventDefault();
 
@@ -1614,19 +1737,31 @@ function submitPromotionRequest(
 
 
     const plan =
-        form.plan?.value.trim();
+        String(
+            form.elements.plan?.value ||
+            ""
+        ).trim();
 
 
     const businessName =
-        form.businessName?.value.trim();
+        String(
+            form.elements.businessName?.value ||
+            ""
+        ).trim();
 
 
     const ownerName =
-        form.ownerName?.value.trim();
+        String(
+            form.elements.ownerName?.value ||
+            ""
+        ).trim();
 
 
     const phone =
-        form.phone?.value.trim();
+        String(
+            form.elements.phone?.value ||
+            ""
+        ).trim();
 
 
     if (
@@ -1647,7 +1782,7 @@ function submitPromotionRequest(
 
 
     const message =
-`Hi LocalLift! 👋
+`Hi LocalLift!
 
 I want to promote my business.
 
@@ -1660,21 +1795,36 @@ Please send me the payment details and next steps.`;
 
 
     const whatsappURL =
-        `https://wa.me/${OWNER_CONTACT}?text=${encodeURIComponent(message)}`;
+        `https://wa.me/${OWNER_CONTACT}?text=${
+            encodeURIComponent(message)
+        }`;
 
 
     closePromotionRequest();
 
 
-    window.location.href =
-        whatsappURL;
+    showToast(
+        "Opening WhatsApp...",
+        "success"
+    );
+
+
+    setTimeout(
+        function () {
+
+            window.location.href =
+                whatsappURL;
+
+        },
+        250
+    );
 
 }
 
 
-// ======================================================
-// STATS
-// ======================================================
+/* =========================================================
+   STATS
+   ========================================================= */
 
 function updateStats() {
 
@@ -1710,9 +1860,10 @@ function updateStats() {
             new Set(
                 businesses
                     .map(
-                        function (business) {
-                            return business.category;
-                        }
+                        business =>
+                            String(
+                                business.category || ""
+                            ).trim()
                     )
                     .filter(Boolean)
             ).size;
@@ -1726,9 +1877,10 @@ function updateStats() {
             new Set(
                 businesses
                     .map(
-                        function (business) {
-                            return business.location;
-                        }
+                        business =>
+                            String(
+                                business.location || ""
+                            ).trim()
                     )
                     .filter(Boolean)
             ).size;
@@ -1738,9 +1890,9 @@ function updateStats() {
 }
 
 
-// ======================================================
-// LOADING
-// ======================================================
+/* =========================================================
+   LOADING
+   ========================================================= */
 
 function showLoading() {
 
@@ -1760,7 +1912,7 @@ function showLoading() {
             <div class="loader"></div>
 
             <p>
-                Loading businesses...
+                Loading local businesses...
             </p>
 
         </div>
@@ -1770,24 +1922,24 @@ function showLoading() {
 }
 
 
-// ======================================================
-// TOAST
-// ======================================================
+/* =========================================================
+   TOAST
+   ========================================================= */
 
 function showToast(
     message,
     type = "info"
 ) {
 
-    const old =
+    const oldToast =
         document.querySelector(
             ".locallift-toast"
         );
 
 
-    if (old) {
+    if (oldToast) {
 
-        old.remove();
+        oldToast.remove();
 
     }
 
@@ -1811,15 +1963,14 @@ function showToast(
     );
 
 
-    setTimeout(
+    requestAnimationFrame(
         function () {
 
             toast.classList.add(
                 "show"
             );
 
-        },
-        20
+        }
     );
 
 
@@ -1847,69 +1998,54 @@ function showToast(
 }
 
 
-// ======================================================
-// SECURITY
-// ======================================================
+/* =========================================================
+   SECURITY HELPERS
+   ========================================================= */
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
     return String(value)
 
-        .replaceAll(
-            "&",
+        .replace(
+            /&/g,
             "&amp;"
         )
 
-        .replaceAll(
-            "<",
+        .replace(
+            /</g,
             "&lt;"
         )
 
-        .replaceAll(
-            ">",
+        .replace(
+            />/g,
             "&gt;"
         )
 
-        .replaceAll(
-            '"',
+        .replace(
+            /"/g,
             "&quot;"
         )
 
-        .replaceAll(
-            "'",
+        .replace(
+            /'/g,
             "&#039;"
         );
 
 }
 
 
-function escapeJS(
-    value
-) {
+/* =========================================================
+   GLOBAL FUNCTIONS
+   ========================================================= */
 
-    return String(value)
+window.openPromotionRequest =
+    openPromotionRequest;
 
-        .replaceAll(
-            "\\",
-            "\\\\"
-        )
+window.closePromotionRequest =
+    closePromotionRequest;
 
-        .replaceAll(
-            "'",
-            "\\'"
-        );
-
-}
-
-
-// ======================================================
-// GLOBAL FUNCTIONS
-// ======================================================
-
-window.addBusiness =
-    addBusiness;
+window.submitPromotionRequest =
+    submitPromotionRequest;
 
 window.openBusinessDetails =
     openBusinessDetails;
@@ -1920,11 +2056,5 @@ window.closeBusinessDetails =
 window.toggleFavorite =
     toggleFavorite;
 
-window.openPromotionRequest =
-    openPromotionRequest;
-
-window.closePromotionRequest =
-    closePromotionRequest;
-
-window.submitPromotionRequest =
-    submitPromotionRequest;
+window.addBusiness =
+    addBusiness;

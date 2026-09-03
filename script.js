@@ -318,8 +318,7 @@ async function addBusiness(event) {
   } catch (error) {
     console.error("Error:", error);
 
-    alert(
-      "❌ Could not add the business. Please check your connection and try again."
+    alert("❌ Supabase error: " + error.message);
     );
   }
 }

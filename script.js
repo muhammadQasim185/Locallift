@@ -6,7 +6,7 @@
 const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co";
 
 // IMPORTANT: Paste your EXISTING Supabase publishable/anon key here.
-const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
 
 // ---------- YOUR WHATSAPP ----------
 const OWNER_CONTACT = "923498092089";

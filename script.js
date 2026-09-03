@@ -690,7 +690,11 @@ function updateFavoriteCount() {
 // ======================================================
 
 function openPromotionRequest(plan) {
-    closePromotionRequest();
+    const oldModal = document.getElementById("promotionModal");
+
+    if (oldModal) {
+        oldModal.remove();
+    }
 
     const modal = document.createElement("div");
 
@@ -698,14 +702,12 @@ function openPromotionRequest(plan) {
     modal.className = "custom-modal";
 
     modal.innerHTML = `
-        <div
-            class="modal-overlay"
-            onclick="closePromotionRequest()"
-        ></div>
+        <div class="modal-overlay" onclick="closePromotionRequest()"></div>
 
         <div class="modal-content">
 
             <button
+                type="button"
                 class="modal-close"
                 onclick="closePromotionRequest()"
             >
@@ -719,15 +721,11 @@ function openPromotionRequest(plan) {
             <h2>Promote Your Business</h2>
 
             <p>
-                You selected the
+                You selected:
                 <strong>${escapeHTML(plan)}</strong>
-                package.
             </p>
 
-            <form
-                id="promotionForm"
-                onsubmit="submitPromotionRequest(event)"
-            >
+            <form onsubmit="submitPromotionRequest(event)">
 
                 <input
                     type="hidden"
@@ -739,23 +737,20 @@ function openPromotionRequest(plan) {
                     type="text"
                     name="businessName"
                     placeholder="Business name"
-                    autocomplete="organization"
                     required
                 >
 
                 <input
                     type="text"
                     name="ownerName"
-                    placeholder="Your name"
-                    autocomplete="name"
+                    placeholder="Owner name"
                     required
                 >
 
                 <input
                     type="tel"
                     name="phone"
-                    placeholder="Your phone number"
-                    autocomplete="tel"
+                    placeholder="Phone number"
                     required
                 >
 
@@ -768,25 +763,14 @@ function openPromotionRequest(plan) {
 
             </form>
 
-            <small>
-                WhatsApp will open with your request ready to send.
-            </small>
+            <p class="promotion-note">
+                Your request will open in WhatsApp.
+            </p>
 
         </div>
     `;
 
     document.body.appendChild(modal);
-}
-
-function closePromotionRequest() {
-    const modal =
-        document.getElementById(
-            "promotionModal"
-        );
-
-    if (modal) {
-        modal.remove();
-    }
 }
 
 // ======================================================

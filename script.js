@@ -5,7 +5,7 @@
 // ---------- SUPABASE CONFIG ----------
 const SUPABASE_URL = "https://lhfpowxkmbyyewwxihtw.supabase.co";
 
-// IMPORTANT: Paste your EXISTING Supabase publishable/anon key here.
+// Your existing Supabase publishable/anon key
 const SUPABASE_KEY = "sb_publishable_PvjBQAO6FTmtv-F1KYPZVg_6sYUZf84";
 
 // ---------- YOUR WHATSAPP ----------
@@ -91,6 +91,7 @@ async function loadBusinesses() {
         filteredBusinesses = [...businesses];
 
         populateFilters();
+        sortBusinesses();
         renderBusinesses();
         updateStats();
 
@@ -101,6 +102,7 @@ async function loadBusinesses() {
         filteredBusinesses = [...businesses];
 
         populateFilters();
+        sortBusinesses();
         renderBusinesses();
         updateStats();
 
@@ -141,23 +143,45 @@ function renderBusinesses() {
 
 function createBusinessCard(business) {
     const id = String(business.id || "");
-    const name = escapeHTML(business.name || "Unnamed Business");
-    const category = escapeHTML(business.category || "General");
-    const location = escapeHTML(business.location || "Not specified");
-    const phone = escapeHTML(business.phone || "");
-    const description = escapeHTML(
-        business.description || "No description available."
+
+    const name = escapeHTML(
+        business.name || "Unnamed Business"
     );
 
-    const plan = business.plan || "free";
-    const favorite = getFavorites().includes(id);
+    const category = escapeHTML(
+        business.category || "General"
+    );
+
+    const location = escapeHTML(
+        business.location || "Not specified"
+    );
+
+    const phone = escapeHTML(
+        business.phone || ""
+    );
+
+    const description = escapeHTML(
+        business.description ||
+        "No description available."
+    );
+
+    const plan = String(
+        business.plan || "free"
+    ).toLowerCase();
+
+    const favorite =
+        getFavorites().includes(id);
 
     let badge = "";
 
     if (plan === "premium") {
-        badge = `<span class="business-badge premium">PREMIUM</span>`;
-    } else if (plan === "featured") {
-        badge = `<span class="business-badge featured">FEATURED</span>`;
+        badge =
+            `<span class="business-badge premium">PREMIUM</span>`;
+    }
+
+    if (plan === "featured") {
+        badge =
+            `<span class="business-badge featured">FEATURED</span>`;
     }
 
     return `
@@ -172,8 +196,10 @@ function createBusinessCard(business) {
                 ${badge}
 
                 <button
+                    type="button"
                     class="favorite-btn ${favorite ? "active" : ""}"
                     onclick="toggleFavorite('${escapeJS(id)}')"
+                    aria-label="Favorite ${name}"
                 >
                     ${favorite ? "♥" : "♡"}
                 </button>
@@ -186,7 +212,9 @@ function createBusinessCard(business) {
                     ${category}
                 </p>
 
-                <h3>${name}</h3>
+                <h3>
+                    ${name}
+                </h3>
 
                 <p class="business-location">
                     📍 ${location}
@@ -199,6 +227,7 @@ function createBusinessCard(business) {
                 <div class="business-actions">
 
                     <button
+                        type="button"
                         class="details-btn"
                         onclick="openBusinessDetails('${escapeJS(id)}')"
                     >
@@ -208,12 +237,12 @@ function createBusinessCard(business) {
                     ${
                         phone
                             ? `
-                            <a
-                                class="call-btn"
-                                href="tel:${phone}"
-                            >
-                                Call
-                            </a>
+                                <a
+                                    class="call-btn"
+                                    href="tel:${phone}"
+                                >
+                                    Call
+                                </a>
                             `
                             : ""
                     }
@@ -231,13 +260,20 @@ function createBusinessCard(business) {
 // ======================================================
 
 function getCategoryIcon(category) {
-    const value = String(category).toLowerCase();
+    const value =
+        String(category || "").toLowerCase();
 
-    if (value.includes("food") || value.includes("restaurant")) {
+    if (
+        value.includes("food") ||
+        value.includes("restaurant")
+    ) {
         return "🍽️";
     }
 
-    if (value.includes("shop")) {
+    if (
+        value.includes("shop") ||
+        value.includes("store")
+    ) {
         return "🛍️";
     }
 
@@ -245,7 +281,11 @@ function getCategoryIcon(category) {
         return "👕";
     }
 
-    if (value.includes("electronic")) {
+    if (
+        value.includes("electronic") ||
+        value.includes("mobile") ||
+        value.includes("phone")
+    ) {
         return "📱";
     }
 
@@ -253,19 +293,32 @@ function getCategoryIcon(category) {
         return "🏏";
     }
 
-    if (value.includes("education")) {
+    if (
+        value.includes("education") ||
+        value.includes("school")
+    ) {
         return "📚";
     }
 
-    if (value.includes("beauty")) {
+    if (
+        value.includes("beauty") ||
+        value.includes("salon")
+    ) {
         return "💈";
     }
 
-    if (value.includes("medical")) {
+    if (
+        value.includes("medical") ||
+        value.includes("hospital") ||
+        value.includes("doctor")
+    ) {
         return "🏥";
     }
 
-    if (value.includes("car") || value.includes("auto")) {
+    if (
+        value.includes("car") ||
+        value.includes("auto")
+    ) {
         return "🚗";
     }
 
@@ -281,84 +334,126 @@ function getCategoryIcon(category) {
 // ======================================================
 
 function setupEvents() {
-    const searchInput = document.getElementById("searchInput");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const locationFilter = document.getElementById("locationFilter");
-    const sortSelect = document.getElementById("sortSelect");
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const locationFilter =
+        document.getElementById("locationFilter");
+
+    const sortSelect =
+        document.getElementById("sortSelect");
 
     if (searchInput) {
-        searchInput.addEventListener("input", applyFilters);
+        searchInput.addEventListener(
+            "input",
+            applyFilters
+        );
     }
 
     if (categoryFilter) {
-        categoryFilter.addEventListener("change", applyFilters);
+        categoryFilter.addEventListener(
+            "change",
+            applyFilters
+        );
     }
 
     if (locationFilter) {
-        locationFilter.addEventListener("change", applyFilters);
+        locationFilter.addEventListener(
+            "change",
+            applyFilters
+        );
     }
 
     if (sortSelect) {
-        sortSelect.addEventListener("change", applyFilters);
+        sortSelect.addEventListener(
+            "change",
+            applyFilters
+        );
     }
 }
 
 function applyFilters() {
-    const searchInput = document.getElementById("searchInput");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const locationFilter = document.getElementById("locationFilter");
+    const searchInput =
+        document.getElementById("searchInput");
 
-    const search = String(
-        searchInput?.value || ""
-    ).toLowerCase().trim();
+    const categoryFilter =
+        document.getElementById("categoryFilter");
 
-    const category = String(
-        categoryFilter?.value || ""
-    ).toLowerCase();
+    const locationFilter =
+        document.getElementById("locationFilter");
 
-    const location = String(
-        locationFilter?.value || ""
-    ).toLowerCase();
+    const search =
+        String(
+            searchInput?.value || ""
+        )
+        .toLowerCase()
+        .trim();
 
-    filteredBusinesses = businesses.filter(function (business) {
+    const category =
+        String(
+            categoryFilter?.value || ""
+        )
+        .toLowerCase()
+        .trim();
 
-        const name = String(
-            business.name || ""
-        ).toLowerCase();
+    const location =
+        String(
+            locationFilter?.value || ""
+        )
+        .toLowerCase()
+        .trim();
 
-        const businessCategory = String(
-            business.category || ""
-        ).toLowerCase();
+    filteredBusinesses =
+        businesses.filter(function (business) {
 
-        const businessLocation = String(
-            business.location || ""
-        ).toLowerCase();
+            const name =
+                String(
+                    business.name || ""
+                )
+                .toLowerCase();
 
-        const description = String(
-            business.description || ""
-        ).toLowerCase();
+            const businessCategory =
+                String(
+                    business.category || ""
+                )
+                .toLowerCase();
 
-        const matchesSearch =
-            !search ||
-            name.includes(search) ||
-            businessCategory.includes(search) ||
-            businessLocation.includes(search) ||
-            description.includes(search);
+            const businessLocation =
+                String(
+                    business.location || ""
+                )
+                .toLowerCase();
 
-        const matchesCategory =
-            !category ||
-            businessCategory === category;
+            const description =
+                String(
+                    business.description || ""
+                )
+                .toLowerCase();
 
-        const matchesLocation =
-            !location ||
-            businessLocation === location;
+            const matchesSearch =
+                !search ||
+                name.includes(search) ||
+                businessCategory.includes(search) ||
+                businessLocation.includes(search) ||
+                description.includes(search);
 
-        return (
-            matchesSearch &&
-            matchesCategory &&
-            matchesLocation
-        );
-    });
+            const matchesCategory =
+                !category ||
+                businessCategory === category;
+
+            const matchesLocation =
+                !location ||
+                businessLocation === location;
+
+            return (
+                matchesSearch &&
+                matchesCategory &&
+                matchesLocation
+            );
+        });
 
     sortBusinesses();
     renderBusinesses();
@@ -369,24 +464,37 @@ function applyFilters() {
 // ======================================================
 
 function sortBusinesses() {
-    const sortSelect = document.getElementById("sortSelect");
-    const sort = sortSelect?.value || "featured";
+    const sortSelect =
+        document.getElementById("sortSelect");
+
+    const sort =
+        sortSelect?.value || "featured";
 
     if (sort === "name") {
-        filteredBusinesses.sort(function (a, b) {
-            return String(a.name || "").localeCompare(
-                String(b.name || "")
-            );
-        });
+        filteredBusinesses.sort(
+            function (a, b) {
+                return String(
+                    a.name || ""
+                ).localeCompare(
+                    String(b.name || "")
+                );
+            }
+        );
     }
 
     if (sort === "newest") {
-        filteredBusinesses.sort(function (a, b) {
-            return (
-                new Date(b.created_at || 0) -
-                new Date(a.created_at || 0)
-            );
-        });
+        filteredBusinesses.sort(
+            function (a, b) {
+                return (
+                    new Date(
+                        b.created_at || 0
+                    ) -
+                    new Date(
+                        a.created_at || 0
+                    )
+                );
+            }
+        );
     }
 
     if (sort === "featured") {
@@ -396,12 +504,24 @@ function sortBusinesses() {
             free: 1
         };
 
-        filteredBusinesses.sort(function (a, b) {
-            return (
-                (rank[b.plan] || 1) -
-                (rank[a.plan] || 1)
-            );
-        });
+        filteredBusinesses.sort(
+            function (a, b) {
+                const planA =
+                    String(
+                        a.plan || "free"
+                    ).toLowerCase();
+
+                const planB =
+                    String(
+                        b.plan || "free"
+                    ).toLowerCase();
+
+                return (
+                    (rank[planB] || 1) -
+                    (rank[planA] || 1)
+                );
+            }
+        );
     }
 }
 
@@ -411,16 +531,25 @@ function sortBusinesses() {
 
 function populateFilters() {
     const categoryFilter =
-        document.getElementById("categoryFilter");
+        document.getElementById(
+            "categoryFilter"
+        );
 
     const locationFilter =
-        document.getElementById("locationFilter");
+        document.getElementById(
+            "locationFilter"
+        );
 
     if (categoryFilter) {
+
         const categories = [
             ...new Set(
                 businesses
-                    .map(b => b.category)
+                    .map(
+                        function (business) {
+                            return business.category;
+                        }
+                    )
                     .filter(Boolean)
             )
         ].sort();
@@ -429,19 +558,27 @@ function populateFilters() {
             `<option value="">All Categories</option>` +
             categories
                 .map(
-                    category =>
-                        `<option value="${escapeHTML(category)}">
-                            ${escapeHTML(category)}
-                        </option>`
+                    function (category) {
+                        return `
+                            <option value="${escapeHTML(category)}">
+                                ${escapeHTML(category)}
+                            </option>
+                        `;
+                    }
                 )
                 .join("");
     }
 
     if (locationFilter) {
+
         const locations = [
             ...new Set(
                 businesses
-                    .map(b => b.location)
+                    .map(
+                        function (business) {
+                            return business.location;
+                        }
+                    )
                     .filter(Boolean)
             )
         ].sort();
@@ -450,10 +587,13 @@ function populateFilters() {
             `<option value="">All Locations</option>` +
             locations
                 .map(
-                    location =>
-                        `<option value="${escapeHTML(location)}">
-                            ${escapeHTML(location)}
-                        </option>`
+                    function (location) {
+                        return `
+                            <option value="${escapeHTML(location)}">
+                                ${escapeHTML(location)}
+                            </option>
+                        `;
+                    }
                 )
                 .join("");
     }
@@ -468,17 +608,31 @@ async function addBusiness(event) {
 
     const form = event.target;
 
-    const name = form.name?.value.trim();
-    const category = form.category?.value.trim();
-    const location = form.location?.value.trim();
-    const phone = form.phone?.value.trim();
-    const description = form.description?.value.trim();
+    const name =
+        form.name?.value.trim();
 
-    if (!name || !category || !location) {
+    const category =
+        form.category?.value.trim();
+
+    const location =
+        form.location?.value.trim();
+
+    const phone =
+        form.phone?.value.trim();
+
+    const description =
+        form.description?.value.trim();
+
+    if (
+        !name ||
+        !category ||
+        !location
+    ) {
         showToast(
             "Please fill in the required fields.",
             "error"
         );
+
         return;
     }
 
@@ -491,22 +645,34 @@ async function addBusiness(event) {
     };
 
     try {
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/Business`,
-            {
-                method: "POST",
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`,
-                    "Content-Type": "application/json",
-                    Prefer: "return=representation"
-                },
-                body: JSON.stringify(businessData)
-            }
-        );
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/Business`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        apikey: SUPABASE_KEY,
+                        Authorization:
+                            `Bearer ${SUPABASE_KEY}`,
+                        "Content-Type":
+                            "application/json",
+                        Prefer:
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            businessData
+                        )
+                }
+            );
 
         if (!response.ok) {
-            const error = await response.text();
+            const error =
+                await response.text();
+
             throw new Error(error);
         }
 
@@ -520,7 +686,11 @@ async function addBusiness(event) {
         await loadBusinesses();
 
     } catch (error) {
-        console.error("Insert error:", error);
+
+        console.error(
+            "Insert error:",
+            error
+        );
 
         showToast(
             "Could not add the business. Check your Supabase setup.",
@@ -534,39 +704,58 @@ async function addBusiness(event) {
 // ======================================================
 
 function openBusinessDetails(id) {
-    const business = businesses.find(
-        b => String(b.id) === String(id)
-    );
+
+    const business =
+        businesses.find(
+            function (business) {
+                return String(
+                    business.id
+                ) === String(id);
+            }
+        );
 
     if (!business) return;
 
     closeBusinessDetails();
 
-    const modal = document.createElement("div");
+    const modal =
+        document.createElement("div");
 
-    modal.id = "businessModal";
-    modal.className = "custom-modal";
+    modal.id =
+        "businessModal";
 
-    const name = escapeHTML(
-        business.name || "Business"
-    );
+    modal.className =
+        "custom-modal";
 
-    const category = escapeHTML(
-        business.category || "General"
-    );
+    const name =
+        escapeHTML(
+            business.name ||
+            "Business"
+        );
 
-    const location = escapeHTML(
-        business.location || "Not specified"
-    );
+    const category =
+        escapeHTML(
+            business.category ||
+            "General"
+        );
 
-    const description = escapeHTML(
-        business.description ||
-        "No description available."
-    );
+    const location =
+        escapeHTML(
+            business.location ||
+            "Not specified"
+        );
 
-    const phone = escapeHTML(
-        business.phone || ""
-    );
+    const description =
+        escapeHTML(
+            business.description ||
+            "No description available."
+        );
+
+    const phone =
+        escapeHTML(
+            business.phone ||
+            ""
+        );
 
     modal.innerHTML = `
         <div
@@ -577,6 +766,7 @@ function openBusinessDetails(id) {
         <div class="modal-content">
 
             <button
+                type="button"
                 class="modal-close"
                 onclick="closeBusinessDetails()"
             >
@@ -591,9 +781,13 @@ function openBusinessDetails(id) {
                 ${category}
             </p>
 
-            <h2>${name}</h2>
+            <h2>
+                ${name}
+            </h2>
 
-            <p>📍 ${location}</p>
+            <p>
+                📍 ${location}
+            </p>
 
             <p class="modal-description">
                 ${description}
@@ -602,12 +796,12 @@ function openBusinessDetails(id) {
             ${
                 phone
                     ? `
-                    <a
-                        class="primary-btn"
-                        href="tel:${phone}"
-                    >
-                        Call Business
-                    </a>
+                        <a
+                            class="primary-btn"
+                            href="tel:${phone}"
+                        >
+                            Call Business
+                        </a>
                     `
                     : ""
             }
@@ -620,7 +814,9 @@ function openBusinessDetails(id) {
 
 function closeBusinessDetails() {
     const modal =
-        document.getElementById("businessModal");
+        document.getElementById(
+            "businessModal"
+        );
 
     if (modal) {
         modal.remove();
@@ -633,32 +829,63 @@ function closeBusinessDetails() {
 
 function getFavorites() {
     try {
-        return JSON.parse(
+
+        const saved =
             localStorage.getItem(
                 "locallift_favorites"
-            ) || "[]"
+            );
+
+        const favorites =
+            JSON.parse(
+                saved || "[]"
+            );
+
+        return Array.isArray(
+            favorites
+        )
+            ? favorites
+            : [];
+
+    } catch (error) {
+
+        console.error(
+            "Favorites error:",
+            error
         );
-    } catch {
+
         return [];
     }
 }
 
 function toggleFavorite(id) {
-    const favorites = getFavorites();
 
-    const index = favorites.indexOf(
-        String(id)
-    );
+    const favorites =
+        getFavorites();
+
+    const stringId =
+        String(id);
+
+    const index =
+        favorites.indexOf(
+            stringId
+        );
 
     if (index >= 0) {
-        favorites.splice(index, 1);
+
+        favorites.splice(
+            index,
+            1
+        );
 
         showToast(
             "Removed from favorites."
         );
 
     } else {
-        favorites.push(String(id));
+
+        favorites.push(
+            stringId
+        );
 
         showToast(
             "Added to favorites ❤️",
@@ -668,7 +895,9 @@ function toggleFavorite(id) {
 
     localStorage.setItem(
         "locallift_favorites",
-        JSON.stringify(favorites)
+        JSON.stringify(
+            favorites
+        )
     );
 
     updateFavoriteCount();
@@ -676,13 +905,20 @@ function toggleFavorite(id) {
 }
 
 function updateFavoriteCount() {
-    const count = getFavorites().length;
+
+    const count =
+        getFavorites().length;
 
     document
-        .querySelectorAll(".favorite-count")
-        .forEach(function (element) {
-            element.textContent = count;
-        });
+        .querySelectorAll(
+            ".favorite-count"
+        )
+        .forEach(
+            function (element) {
+                element.textContent =
+                    count;
+            }
+        );
 }
 
 // ======================================================
@@ -690,19 +926,38 @@ function updateFavoriteCount() {
 // ======================================================
 
 function openPromotionRequest(plan) {
-    const oldModal = document.getElementById("promotionModal");
+
+    const oldModal =
+        document.getElementById(
+            "promotionModal"
+        );
 
     if (oldModal) {
         oldModal.remove();
     }
 
-    const modal = document.createElement("div");
+    const selectedPlan =
+        String(
+            plan ||
+            "Featured — Rs. 500/month"
+        );
 
-    modal.id = "promotionModal";
-    modal.className = "custom-modal";
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+    modal.id =
+        "promotionModal";
+
+    modal.className =
+        "custom-modal";
 
     modal.innerHTML = `
-        <div class="modal-overlay" onclick="closePromotionRequest()"></div>
+        <div
+            class="modal-overlay"
+            onclick="closePromotionRequest()"
+        ></div>
 
         <div class="modal-content">
 
@@ -710,6 +965,7 @@ function openPromotionRequest(plan) {
                 type="button"
                 class="modal-close"
                 onclick="closePromotionRequest()"
+                aria-label="Close"
             >
                 ×
             </button>
@@ -718,25 +974,33 @@ function openPromotionRequest(plan) {
                 🚀
             </div>
 
-            <h2>Promote Your Business</h2>
+            <h2>
+                Promote Your Business
+            </h2>
 
             <p>
                 You selected:
-                <strong>${escapeHTML(plan)}</strong>
+                <strong>
+                    ${escapeHTML(selectedPlan)}
+                </strong>
             </p>
 
-            <form onsubmit="submitPromotionRequest(event)">
+            <form
+                id="promotionForm"
+                onsubmit="submitPromotionRequest(event)"
+            >
 
                 <input
                     type="hidden"
                     name="plan"
-                    value="${escapeHTML(plan)}"
+                    value="${escapeHTML(selectedPlan)}"
                 >
 
                 <input
                     type="text"
                     name="businessName"
                     placeholder="Business name"
+                    autocomplete="organization"
                     required
                 >
 
@@ -744,6 +1008,7 @@ function openPromotionRequest(plan) {
                     type="text"
                     name="ownerName"
                     placeholder="Owner name"
+                    autocomplete="name"
                     required
                 >
 
@@ -751,6 +1016,7 @@ function openPromotionRequest(plan) {
                     type="tel"
                     name="phone"
                     placeholder="Phone number"
+                    autocomplete="tel"
                     required
                 >
 
@@ -764,35 +1030,55 @@ function openPromotionRequest(plan) {
             </form>
 
             <p class="promotion-note">
-                Your request will open in WhatsApp.
+                WhatsApp will open with your request ready to send.
             </p>
 
         </div>
     `;
 
-    document.body.appendChild(modal);
+    document.body.appendChild(
+        modal
+    );
 }
 
 // ======================================================
-// SEND PROMOTION REQUEST TO YOUR WHATSAPP
+// CLOSE PROMOTION
+// ======================================================
+
+function closePromotionRequest() {
+
+    const modal =
+        document.getElementById(
+            "promotionModal"
+        );
+
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ======================================================
+// SEND PROMOTION REQUEST
 // ======================================================
 
 function submitPromotionRequest(event) {
+
     event.preventDefault();
 
-    const form = event.target;
+    const form =
+        event.target;
 
     const plan =
-        form.plan.value.trim();
+        form.plan?.value.trim();
 
     const businessName =
-        form.businessName.value.trim();
+        form.businessName?.value.trim();
 
     const ownerName =
-        form.ownerName.value.trim();
+        form.ownerName?.value.trim();
 
     const phone =
-        form.phone.value.trim();
+        form.phone?.value.trim();
 
     if (
         !plan ||
@@ -800,6 +1086,7 @@ function submitPromotionRequest(event) {
         !ownerName ||
         !phone
     ) {
+
         showToast(
             "Please complete all fields.",
             "error"
@@ -825,8 +1112,8 @@ Please send me the payment details and next steps.`;
 
     closePromotionRequest();
 
-    // Open your WhatsApp chat with the message prepared.
-    window.location.href = whatsappURL;
+    window.location.href =
+        whatsappURL;
 }
 
 // ======================================================
@@ -834,6 +1121,7 @@ Please send me the payment details and next steps.`;
 // ======================================================
 
 function updateStats() {
+
     const businessCount =
         document.querySelector(
             ".business-count"
@@ -850,24 +1138,35 @@ function updateStats() {
         );
 
     if (businessCount) {
+
         businessCount.textContent =
             businesses.length;
     }
 
     if (categoryCount) {
+
         categoryCount.textContent =
             new Set(
                 businesses
-                    .map(b => b.category)
+                    .map(
+                        function (business) {
+                            return business.category;
+                        }
+                    )
                     .filter(Boolean)
             ).size;
     }
 
     if (locationCount) {
+
         locationCount.textContent =
             new Set(
                 businesses
-                    .map(b => b.location)
+                    .map(
+                        function (business) {
+                            return business.location;
+                        }
+                    )
                     .filter(Boolean)
             ).size;
     }
@@ -878,6 +1177,7 @@ function updateStats() {
 // ======================================================
 
 function showLoading() {
+
     const grid =
         document.getElementById(
             "businessGrid"
@@ -887,8 +1187,13 @@ function showLoading() {
 
     grid.innerHTML = `
         <div class="loading-state">
+
             <div class="loader"></div>
-            <p>Loading businesses...</p>
+
+            <p>
+                Loading businesses...
+            </p>
+
         </div>
     `;
 }
@@ -901,6 +1206,7 @@ function showToast(
     message,
     type = "info"
 ) {
+
     const old =
         document.querySelector(
             ".locallift-toast"
@@ -911,27 +1217,46 @@ function showToast(
     }
 
     const toast =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     toast.className =
         `locallift-toast ${type}`;
 
-    toast.textContent = message;
+    toast.textContent =
+        message;
 
-    document.body.appendChild(toast);
+    document.body.appendChild(
+        toast
+    );
 
-    setTimeout(function () {
-        toast.classList.add("show");
-    }, 20);
+    setTimeout(
+        function () {
+            toast.classList.add(
+                "show"
+            );
+        },
+        20
+    );
 
-    setTimeout(function () {
-        toast.classList.remove("show");
+    setTimeout(
+        function () {
 
-        setTimeout(function () {
-            toast.remove();
-        }, 300);
+            toast.classList.remove(
+                "show"
+            );
 
-    }, 3500);
+            setTimeout(
+                function () {
+                    toast.remove();
+                },
+                300
+            );
+
+        },
+        3500
+    );
 }
 
 // ======================================================
@@ -939,18 +1264,41 @@ function showToast(
 // ======================================================
 
 function escapeHTML(value) {
+
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
 
 function escapeJS(value) {
+
     return String(value)
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'");
+        .replaceAll(
+            "\\",
+            "\\\\"
+        )
+        .replaceAll(
+            "'",
+            "\\'"
+        );
 }
 
 // ======================================================
@@ -977,6 +1325,3 @@ window.closePromotionRequest =
 
 window.submitPromotionRequest =
     submitPromotionRequest;
-window.openPromotionRequest = openPromotionRequest;
-window.closePromotionRequest = closePromotionRequest;
-window.submitPromotionRequest = submitPromotionRequest;

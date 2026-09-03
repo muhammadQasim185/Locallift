@@ -1,612 +1,911 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"><meta
-name="description"
-content="LocalLift — Discover great local businesses, restaurants, shops and services."
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-«»
+  <meta
+    name="description"
+    content="LocalLift - Discover, support and promote local businesses."
+  >
 
-  <meta name="theme-color" content="#0b1220">  <title>LocalLift — Discover Local</title>  <link rel="stylesheet" href="style.css">
-</head><body>  <!-- =========================
-       NAVIGATION
-       ========================= -->  <header class="site-header"><nav class="navbar container">
+  <title>LocalLift | Discover Local Businesses</title>
 
-  <a href="#" class="logo" aria-label="LocalLift home">
-    Local<span>Lift</span>
-  </a>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-  <div class="nav-actions">
-    <button
-      class="nav-link"
-      type="button"
-      onclick="scrollToBusinesses()"
-    >
-      Explore
-    </button>
+<body>
 
-    <button
-      class="primary-btn"
-      type="button"
-      onclick="openModal()"
-    >
-      + List your business
-    </button>
-  </div>
+  <!-- ================= HEADER ================= -->
 
-</nav>
+  <header class="header">
+
+    <nav class="navbar container">
+
+      <a href="#" class="logo">
+        Local<span>Lift</span>
+      </a>
+
+      <div class="nav-actions">
+
+        <button
+          id="themeToggle"
+          class="icon-btn"
+          type="button"
+          aria-label="Toggle theme"
+        >
+          ☾
+        </button>
+
+        <button
+          class="list-btn"
+          type="button"
+          onclick="openModal()"
+        >
+          + List your business
+        </button>
+
+      </div>
+
+    </nav>
 
 
-<!-- =========================
-     HERO
-     ========================= -->
+    <!-- HERO -->
 
-<section class="hero">
+    <div class="hero container">
 
-  <div class="hero-content">
+      <div class="hero-badge">
+        ✦ YOUR LOCAL BUSINESS DISCOVERY PLATFORM
+      </div>
 
-    <div class="hero-badge">
-      <span class="status-dot"></span>
-      Your local business directory
+      <h1>
+        Discover great businesses
+        <span>around you.</span>
+      </h1>
+
+      <p class="hero-text">
+        Find restaurants, shops, services and more.
+        Discover local. Support local.
+      </p>
+
+
+      <div class="search-box">
+
+        <span class="search-icon">⌕</span>
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search businesses, categories or locations..."
+          autocomplete="off"
+        >
+
+        <button
+          id="clearSearch"
+          class="clear-search"
+          type="button"
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="hero-actions">
+
+        <button
+          class="hero-main-btn"
+          type="button"
+          onclick="scrollToBusinesses()"
+        >
+          Explore businesses →
+        </button>
+
+        <button
+          class="hero-secondary-btn"
+          type="button"
+          onclick="scrollToPricing()"
+        >
+          Grow your business
+        </button>
+
+      </div>
+
     </div>
 
-    <h1>
-      Discover what's
-      <span>local.</span>
-    </h1>
-
-    <p class="hero-text">
-      Find restaurants, shops, services and businesses
-      around your community — all in one place.
-    </p>
+  </header>
 
 
-    <!-- SEARCH -->
+  <!-- ================= STATS ================= -->
 
-    <div class="search-box">
+  <section class="stats-section">
 
-      <span class="search-icon">⌕</span>
+    <div class="container stats-grid">
 
-      <input
-        id="searchInput"
-        type="search"
-        placeholder="Search a business, category or location..."
-        autocomplete="off"
-        aria-label="Search businesses"
-      >
+      <div class="stat-card">
+        <strong id="totalBusinesses">0</strong>
+        <span>Businesses</span>
+      </div>
+
+      <div class="stat-card">
+        <strong id="totalCategories">0</strong>
+        <span>Categories</span>
+      </div>
+
+      <div class="stat-card">
+        <strong id="totalLocations">0</strong>
+        <span>Locations</span>
+      </div>
+
+      <div class="stat-card">
+        <strong>24/7</strong>
+        <span>Discovery</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <main>
+
+
+    <!-- ================= CATEGORIES ================= -->
+
+    <section class="categories-section">
+
+      <div class="container">
+
+        <div class="section-intro">
+
+          <div>
+            <p class="eyebrow">EXPLORE</p>
+            <h2>Browse categories</h2>
+          </div>
+
+          <p>
+            Find exactly what you're looking for.
+          </p>
+
+        </div>
+
+
+        <div class="categories">
+
+          <button
+            class="category-btn active"
+            data-category="All"
+            onclick="filterCategory('All')"
+          >
+            <span>🏪</span>
+            All
+          </button>
+
+          <button
+            class="category-btn"
+            data-category="Restaurant"
+            onclick="filterCategory('Restaurant')"
+          >
+            <span>🍔</span>
+            Restaurants
+          </button>
+
+          <button
+            class="category-btn"
+            data-category="Clothing"
+            onclick="filterCategory('Clothing')"
+          >
+            <span>👕</span>
+            Clothing
+          </button>
+
+          <button
+            class="category-btn"
+            data-category="Technology"
+            onclick="filterCategory('Technology')"
+          >
+            <span>💻</span>
+            Technology
+          </button>
+
+          <button
+            class="category-btn"
+            data-category="Beauty"
+            onclick="filterCategory('Beauty')"
+          >
+            <span>✨</span>
+            Beauty
+          </button>
+
+          <button
+            class="category-btn"
+            data-category="Services"
+            onclick="filterCategory('Services')"
+          >
+            <span>🔧</span>
+            Services
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= BUSINESSES ================= -->
+
+    <section
+      id="businesses"
+      class="business-section"
+    >
+
+      <div class="container">
+
+        <div class="section-heading">
+
+          <div>
+
+            <p class="eyebrow">LOCAL DISCOVERY</p>
+
+            <h2>Businesses</h2>
+
+            <p id="resultCount" class="result-count">
+              Loading businesses...
+            </p>
+
+          </div>
+
+
+          <div class="controls">
+
+            <select id="categoryFilter">
+
+              <option value="All">
+                All categories
+              </option>
+
+              <option value="Restaurant">
+                Restaurant
+              </option>
+
+              <option value="Clothing">
+                Clothing
+              </option>
+
+              <option value="Technology">
+                Technology
+              </option>
+
+              <option value="Beauty">
+                Beauty
+              </option>
+
+              <option value="Services">
+                Services
+              </option>
+
+            </select>
+
+
+            <select id="sortFilter">
+
+              <option value="newest">
+                Newest
+              </option>
+
+              <option value="name">
+                Name A–Z
+              </option>
+
+              <option value="location">
+                Location
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="businessList"
+          class="business-grid"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= PROMOTION ================= -->
+
+    <section class="promotion-section">
+
+      <div class="container promotion-box">
+
+        <div>
+
+          <p class="eyebrow">
+            FOR BUSINESS OWNERS
+          </p>
+
+          <h2>
+            Want more people to discover your business?
+          </h2>
+
+          <p>
+            Get your business listed for free or promote it
+            with a featured placement on LocalLift.
+          </p>
+
+        </div>
+
+
+        <div class="promotion-actions">
+
+          <button
+            class="dark-btn"
+            type="button"
+            onclick="openModal()"
+          >
+            List for free
+          </button>
+
+          <button
+            class="light-btn"
+            type="button"
+            onclick="scrollToPricing()"
+          >
+            View promotion plans
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= PRICING ================= -->
+
+    <section
+      id="pricing"
+      class="pricing-section"
+    >
+
+      <div class="container">
+
+        <div class="pricing-heading">
+
+          <p class="eyebrow">
+            GROW WITH LOCALLIFT
+          </p>
+
+          <h2>
+            Get your business noticed.
+          </h2>
+
+          <p>
+            Start free. Upgrade when you want more visibility.
+          </p>
+
+        </div>
+
+
+        <div class="pricing-grid">
+
+
+          <!-- FREE -->
+
+          <article class="price-card">
+
+            <div class="plan-icon">
+              🏪
+            </div>
+
+            <p class="plan-label">
+              STARTER
+            </p>
+
+            <h3>
+              Free
+            </h3>
+
+            <p class="price-description">
+              Get your business onto LocalLift.
+            </p>
+
+            <ul>
+
+              <li>✓ Business listing</li>
+              <li>✓ Category placement</li>
+              <li>✓ Location visibility</li>
+              <li>✓ Phone contact</li>
+
+            </ul>
+
+            <button
+              class="plan-btn secondary-plan"
+              type="button"
+              onclick="openModal()"
+            >
+              List for free
+            </button>
+
+          </article>
+
+
+          <!-- FEATURED -->
+
+          <article class="price-card featured-plan">
+
+            <div class="popular">
+              MOST POPULAR
+            </div>
+
+            <div class="plan-icon">
+              ⭐
+            </div>
+
+            <p class="plan-label">
+              FEATURED
+            </p>
+
+            <h3>
+              Rs. 500
+              <small>/ month</small>
+            </h3>
+
+            <p class="price-description">
+              Put your business in front of more local customers.
+            </p>
+
+            <ul>
+
+              <li>✓ Everything in Free</li>
+              <li>✓ Featured badge</li>
+              <li>✓ Priority placement</li>
+              <li>✓ Featured section visibility</li>
+
+            </ul>
+
+            <button
+              class="plan-btn primary-plan"
+              type="button"
+              onclick="openPromotionRequest('Featured — Rs. 500/month')"
+            >
+              Get Featured
+            </button>
+
+          </article>
+
+
+          <!-- PREMIUM -->
+
+          <article class="price-card">
+
+            <div class="plan-icon">
+              🚀
+            </div>
+
+            <p class="plan-label">
+              PREMIUM
+            </p>
+
+            <h3>
+              Rs. 1,000
+              <small>/ month</small>
+            </h3>
+
+            <p class="price-description">
+              Maximum visibility for businesses ready to grow.
+            </p>
+
+            <ul>
+
+              <li>✓ Everything in Featured</li>
+              <li>✓ Premium badge</li>
+              <li>✓ Top placement</li>
+              <li>✓ Priority promotion</li>
+
+            </ul>
+
+            <button
+              class="plan-btn secondary-plan"
+              type="button"
+              onclick="openPromotionRequest('Premium — Rs. 1,000/month')"
+            >
+              Go Premium
+            </button>
+
+          </article>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CTA ================= -->
+
+    <section class="final-cta">
+
+      <div class="container">
+
+        <p class="eyebrow">
+          LOCALLIFT
+        </p>
+
+        <h2>
+          Discover local.
+          <span>Support local.</span>
+        </h2>
+
+        <p>
+          Have a business? Put it where local customers can find it.
+        </p>
+
+        <button
+          class="hero-main-btn"
+          type="button"
+          onclick="openModal()"
+        >
+          Add your business →
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= BUSINESS MODAL ================= -->
+
+  <div
+    id="businessModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div class="modal-content">
 
       <button
-        class="clear-search"
-        id="clearSearch"
+        class="close-btn"
         type="button"
-        aria-label="Clear search"
+        onclick="closeModal()"
+        aria-label="Close"
       >
         ×
       </button>
 
-    </div>
 
+      <div class="modal-header">
 
-    <div class="hero-note">
-      <span>✓</span>
-      Search local businesses instantly
-    </div>
-
-  </div>
-
-</section>
-
-  </header>  <main><!-- =========================
-     QUICK CATEGORIES
-     ========================= -->
-
-<section class="category-section">
-
-  <div class="container">
-
-    <div class="section-top">
-
-      <div>
-        <p class="eyebrow dark">EXPLORE</p>
-        <h2>Browse categories</h2>
-      </div>
-
-      <button
-        class="text-btn"
-        type="button"
-        onclick="filterCategory('All')"
-      >
-        View all →
-      </button>
-
-    </div>
-
-
-    <div class="categories">
-
-      <button
-        class="category-card active"
-        data-category="All"
-        onclick="filterCategory('All')"
-      >
-        <span class="category-icon">✦</span>
-        <span>All</span>
-      </button>
-
-      <button
-        class="category-card"
-        data-category="Restaurant"
-        onclick="filterCategory('Restaurant')"
-      >
-        <span class="category-icon">🍔</span>
-        <span>Restaurants</span>
-      </button>
-
-      <button
-        class="category-card"
-        data-category="Clothing"
-        onclick="filterCategory('Clothing')"
-      >
-        <span class="category-icon">👕</span>
-        <span>Clothing</span>
-      </button>
-
-      <button
-        class="category-card"
-        data-category="Technology"
-        onclick="filterCategory('Technology')"
-      >
-        <span class="category-icon">💻</span>
-        <span>Technology</span>
-      </button>
-
-      <button
-        class="category-card"
-        data-category="Beauty"
-        onclick="filterCategory('Beauty')"
-      >
-        <span class="category-icon">✨</span>
-        <span>Beauty</span>
-      </button>
-
-      <button
-        class="category-card"
-        data-category="Services"
-        onclick="filterCategory('Services')"
-      >
-        <span class="category-icon">🔧</span>
-        <span>Services</span>
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     BUSINESS DIRECTORY
-     ========================= -->
-
-<section
-  id="businesses"
-  class="business-section"
->
-
-  <div class="container">
-
-    <div class="directory-header">
-
-      <div>
-
-        <div class="eyebrow-row">
-          <p class="eyebrow dark">LOCAL DISCOVERY</p>
-          <span class="live-pill">
-            <span></span> Live
-          </span>
-        </div>
-
-        <h2>Discover local businesses</h2>
-
-        <p class="section-description">
-          Explore businesses listed on LocalLift.
+        <p class="eyebrow">
+          GET DISCOVERED
         </p>
 
-      </div>
-
-
-      <div class="directory-controls">
-
-        <select
-          id="categoryFilter"
-          aria-label="Filter by category"
-        >
-          <option value="All">All Categories</option>
-          <option value="Restaurant">Restaurant</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Technology">Technology</option>
-          <option value="Beauty">Beauty</option>
-          <option value="Services">Services</option>
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="directory-meta">
-
-      <p id="resultCount">
-        Loading businesses...
-      </p>
-
-      <button
-        id="resetFilters"
-        class="reset-btn"
-        type="button"
-      >
-        Reset filters
-      </button>
-
-    </div>
-
-
-    <div
-      id="businessList"
-      class="business-grid"
-    ></div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     CTA
-     ========================= -->
-
-<section class="cta-section">
-
-  <div class="container">
-
-    <div class="cta">
-
-      <div>
-
-        <p class="eyebrow">FOR LOCAL OWNERS</p>
-
         <h2>
-          Put your business
-          on the map.
+          List your business
         </h2>
 
         <p>
-          Get discovered by people looking
-          for businesses like yours.
+          Your basic listing is completely free.
         </p>
 
       </div>
 
-      <button
-        class="cta-btn"
-        type="button"
-        onclick="openModal()"
+
+      <form
+        id="businessForm"
+        onsubmit="addBusiness(event)"
       >
-        List your business →
-      </button>
+
+        <label for="businessName">
+          Business name *
+        </label>
+
+        <input
+          id="businessName"
+          type="text"
+          maxlength="100"
+          placeholder="e.g. Moonlight Café"
+          required
+        >
+
+
+        <label for="businessCategory">
+          Category *
+        </label>
+
+        <select
+          id="businessCategory"
+          required
+        >
+
+          <option value="">
+            Choose a category
+          </option>
+
+          <option value="Restaurant">
+            Restaurant
+          </option>
+
+          <option value="Clothing">
+            Clothing
+          </option>
+
+          <option value="Technology">
+            Technology
+          </option>
+
+          <option value="Beauty">
+            Beauty
+          </option>
+
+          <option value="Services">
+            Services
+          </option>
+
+        </select>
+
+
+        <label for="businessLocation">
+          Location *
+        </label>
+
+        <input
+          id="businessLocation"
+          type="text"
+          maxlength="100"
+          placeholder="e.g. Mirpur"
+          required
+        >
+
+
+        <label for="businessPhone">
+          Phone
+        </label>
+
+        <input
+          id="businessPhone"
+          type="tel"
+          maxlength="30"
+          placeholder="e.g. 03001234567"
+        >
+
+
+        <label for="businessDescription">
+          Description
+        </label>
+
+        <textarea
+          id="businessDescription"
+          rows="4"
+          maxlength="500"
+          placeholder="Tell people about your business..."
+        ></textarea>
+
+
+        <button
+          class="submit-btn"
+          type="submit"
+        >
+          Add Business
+        </button>
+
+      </form>
 
     </div>
 
   </div>
 
-</section>
 
-  </main>  <!-- =========================
-       ADD BUSINESS MODAL
-       ========================= -->  <div
-    id="businessModal"
-    class="modal"
-    aria-hidden="true"
-  ><div
-  class="modal-content"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="modalTitle"
->
+  <!-- ================= DETAILS MODAL ================= -->
 
-  <button
-    class="close-btn"
-    type="button"
-    onclick="closeModal()"
-    aria-label="Close"
-  >
-    ×
-  </button>
-
-
-  <div class="modal-header">
-
-    <div class="modal-icon">
-      ✦
-    </div>
-
-    <div>
-
-      <p class="eyebrow dark">
-        GET DISCOVERED
-      </p>
-
-      <h2 id="modalTitle">
-        List your business
-      </h2>
-
-      <p>
-        Add your business to LocalLift.
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <form
-    id="businessForm"
-    onsubmit="addBusiness(event)"
-  >
-
-    <div class="form-group">
-
-      <label for="businessName">
-        Business name <span>*</span>
-      </label>
-
-      <input
-        id="businessName"
-        type="text"
-        maxlength="100"
-        placeholder="e.g. Moonlight Café"
-        required
-      >
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="businessCategory">
-        Category <span>*</span>
-      </label>
-
-      <select
-        id="businessCategory"
-        required
-      >
-        <option value="">Choose a category</option>
-        <option value="Restaurant">Restaurant</option>
-        <option value="Clothing">Clothing</option>
-        <option value="Technology">Technology</option>
-        <option value="Beauty">Beauty</option>
-        <option value="Services">Services</option>
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="businessLocation">
-        Location <span>*</span>
-      </label>
-
-      <input
-        id="businessLocation"
-        type="text"
-        maxlength="100"
-        placeholder="e.g. Mirpur"
-        required
-      >
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="businessPhone">
-        Phone
-      </label>
-
-      <input
-        id="businessPhone"
-        type="tel"
-        maxlength="30"
-        placeholder="e.g. 03001234567"
-      >
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="businessDescription">
-        Description
-      </label>
-
-      <textarea
-        id="businessDescription"
-        rows="4"
-        maxlength="500"
-        placeholder="Tell people about your business..."
-      ></textarea>
-
-      <div class="character-count">
-        <span id="descriptionCount">0</span>/500
-      </div>
-
-    </div>
-
-
-    <button
-      class="submit-btn"
-      type="submit"
-    >
-      <span class="submit-text">
-        Add Business
-      </span>
-
-      <span class="submit-spinner"></span>
-    </button>
-
-  </form>
-
-</div>
-
-  </div>  <!-- =========================
-       BUSINESS DETAILS MODAL
-       ========================= -->  <div
+  <div
     id="detailsModal"
     class="modal"
     aria-hidden="true"
-  ><div
-  class="details-modal-content"
-  role="dialog"
-  aria-modal="true"
->
-
-  <button
-    class="close-btn"
-    type="button"
-    onclick="closeDetails()"
-    aria-label="Close"
   >
-    ×
-  </button>
 
+    <div class="modal-content details-modal">
+
+      <button
+        class="close-btn"
+        type="button"
+        onclick="closeDetails()"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+      <div id="detailsContent"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= PROMOTION REQUEST MODAL ================= -->
 
   <div
-    id="detailsIcon"
-    class="details-icon"
+    id="promotionModal"
+    class="modal"
+    aria-hidden="true"
   >
-    🏪
+
+    <div class="modal-content">
+
+      <button
+        class="close-btn"
+        type="button"
+        onclick="closePromotionModal()"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+
+      <div class="modal-header">
+
+        <p class="eyebrow">
+          PROMOTE YOUR BUSINESS
+        </p>
+
+        <h2>
+          Get your business featured
+        </h2>
+
+        <p>
+          Send a request and we'll get in touch about your selected plan.
+        </p>
+
+      </div>
+
+
+      <form
+        id="promotionForm"
+        onsubmit="submitPromotionRequest(event)"
+      >
+
+        <label for="promotionBusiness">
+          Business name *
+        </label>
+
+        <input
+          id="promotionBusiness"
+          type="text"
+          maxlength="100"
+          required
+          placeholder="Your business name"
+        >
+
+
+        <label for="promotionPhone">
+          Contact number *
+        </label>
+
+        <input
+          id="promotionPhone"
+          type="tel"
+          maxlength="30"
+          required
+          placeholder="03001234567"
+        >
+
+
+        <label for="promotionPlan">
+          Selected plan
+        </label>
+
+        <input
+          id="promotionPlan"
+          type="text"
+          readonly
+        >
+
+
+        <button
+          class="submit-btn"
+          type="submit"
+        >
+          Send Promotion Request
+        </button>
+
+      </form>
+
+    </div>
+
   </div>
 
 
-  <span
-    id="detailsCategory"
-    class="business-category"
-  >
-    Category
-  </span>
-
-
-  <h2 id="detailsName">
-    Business
-  </h2>
-
-
-  <div class="detail-row">
-    <span>📍</span>
-    <p id="detailsLocation">
-      Location
-    </p>
-  </div>
-
+  <!-- ================= TOAST ================= -->
 
   <div
-    id="detailsPhoneRow"
-    class="detail-row"
-  >
-    <span>📞</span>
-    <p id="detailsPhone">
-      Phone
-    </p>
-  </div>
-
-
-  <div class="details-description">
-
-    <p class="details-label">
-      About
-    </p>
-
-    <p id="detailsDescription">
-      Description
-    </p>
-
-  </div>
-
-
-  <div class="details-actions">
-
-    <a
-      id="detailsCall"
-      class="details-action primary"
-      href="#"
-    >
-      📞 Call
-    </a>
-
-    <button
-      id="detailsCopy"
-      class="details-action secondary"
-      type="button"
-    >
-      Copy phone
-    </button>
-
-    <a
-      id="detailsMap"
-      class="details-action secondary"
-      href="#"
-      target="_blank"
-      rel="noopener"
-    >
-      📍 Maps
-    </a>
-
-  </div>
-
-</div>
-
-  </div>  <!-- =========================
-       TOAST
-       ========================= -->  <div
     id="toast"
     class="toast"
     role="status"
     aria-live="polite"
-  ></div>  <!-- =========================
-       FOOTER
-       ========================= -->  <footer><div class="container footer-content">
+  ></div>
 
-  <div>
 
-    <div class="footer-logo">
-      Local<span>Lift</span>
+  <!-- ================= BACK TOP ================= -->
+
+  <button
+    id="backTop"
+    class="back-top"
+    type="button"
+    onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+    aria-label="Back to top"
+  >
+    ↑
+  </button>
+
+
+  <!-- ================= FOOTER ================= -->
+
+  <footer>
+
+    <div class="container footer-content">
+
+      <div>
+
+        <div class="footer-logo">
+          Local<span>Lift</span>
+        </div>
+
+        <p>
+          Discover local. Support local.
+        </p>
+
+      </div>
+
+
+      <div class="footer-links">
+
+        <button
+          type="button"
+          onclick="scrollToBusinesses()"
+        >
+          Businesses
+        </button>
+
+        <button
+          type="button"
+          onclick="scrollToPricing()"
+        >
+          Pricing
+        </button>
+
+        <button
+          type="button"
+          onclick="openModal()"
+        >
+          List Business
+        </button>
+
+      </div>
+
     </div>
 
-    <p>
-      Discover local. Support local.
-    </p>
 
-  </div>
+    <div class="container copyright">
 
-  <div class="footer-right">
+      © 2026 LocalLift. All rights reserved.
 
-    <p>
-      © 2026 LocalLift
-    </p>
+    </div>
 
-    <button
-      type="button"
-      onclick="scrollToBusinesses()"
-    >
-      Explore businesses
-    </button>
+  </footer>
 
-  </div>
 
-</div>
+  <script src="script.js"></script>
 
-  </footer>  <script src="script.js"></script></body>
+</body>
 </html>

@@ -993,3 +993,6 @@ window.closePromotionRequest =
 
 window.submitPromotionRequest =
     submitPromotionRequest;
+window.openPromotionRequest = openPromotionRequest;
+window.closePromotionRequest = closePromotionRequest;
+window.submitPromotionRequest = submitPromotionRequest;

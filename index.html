@@ -3,279 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>LocalLift — Find Local Businesses</title>
-  <meta name="description" content="Discover local businesses, services, restaurants, shops and more with LocalLift.">
-
+  <meta name="description" content="LocalLift - Discover and list local businesses.">
+  <title>LocalLift | Local Business Directory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- HEADER -->
   <header class="header">
-    <div class="container nav">
+    <nav class="navbar">
+      <div class="logo">Local<span>Lift</span></div>
 
-      <a href="#" class="logo">
-        <span>Local</span>Lift
-      </a>
-
-         <button class="list-btn" onclick="openModa1()">
+      <button class="list-btn" onclick="openModal()">
         + List your business
       </button>
+    </nav>
 
+    <div class="hero">
+      <p class="eyebrow">YOUR LOCAL BUSINESS DIRECTORY</p>
+      <h1>Discover businesses<br>around you.</h1>
+      <p class="hero-text">
+        Find restaurants, shops, services and more in your local area.
+      </p>
+
+      <div class="search-box">
+        <span>🔎</span>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search businesses..."
+          autocomplete="off"
+        >
+      </div>
     </div>
   </header>
 
-
-  <!-- HERO -->
   <main>
 
-    <section class="hero">
-      <div class="container hero-content">
+    <section class="categories-section">
+      <div class="container">
+        <h2>Browse Categories</h2>
 
-        <div class="badge">
-          📍 Discover local
+        <div class="categories">
+          <button onclick="filterCategory('All')">🏪 All</button>
+          <button onclick="filterCategory('Restaurant')">🍔 Restaurants</button>
+          <button onclick="filterCategory('Clothing')">👕 Clothing</button>
+          <button onclick="filterCategory('Technology')">💻 Technology</button>
+          <button onclick="filterCategory('Beauty')">✨ Beauty</button>
+          <button onclick="filterCategory('Services')">🔧 Services</button>
         </div>
+      </div>
+    </section>
 
-        <h1>
-          Find great businesses<br>
-          <span>near you.</span>
-        </h1>
+    <section class="business-section">
+      <div class="container">
 
-        <p>
-          Discover restaurants, shops, services and businesses around your area.
-        </p>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LOCAL DISCOVERY</p>
+            <h2>Featured Businesses</h2>
+          </div>
 
-
-        <!-- SEARCH -->
-        <div class="search-box">
-
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search businesses..."
-            oninput="searchBusinesses()"
-          >
-
-          <select id="categoryFilter" onchange="searchBusinesses()">
-            <option value="All">All categories</option>
-            <option value="Restaurant">Food & Restaurants</option>
+          <select id="categoryFilter">
+            <option value="All">All Categories</option>
+            <option value="Restaurant">Restaurant</option>
             <option value="Clothing">Clothing</option>
             <option value="Technology">Technology</option>
             <option value="Beauty">Beauty</option>
             <option value="Services">Services</option>
           </select>
-
-          <button onclick="searchBusinesses()">
-            Search
-          </button>
-
         </div>
 
-      </div>
-    </section>
-
-
-    <!-- CATEGORIES -->
-    <section class="categories">
-      <div class="container">
-
-        <h2>Browse categories</h2>
-
-        <div class="category-buttons">
-
-          <button onclick="filterCategory('All')">
-            🔥 All
-          </button>
-
-          <button onclick="filterCategory('Restaurant')">
-            🍔 Food
-          </button>
-
-          <button onclick="filterCategory('Clothing')">
-            👕 Clothing
-          </button>
-
-          <button onclick="filterCategory('Technology')">
-            💻 Tech
-          </button>
-
-          <button onclick="filterCategory('Beauty')">
-            ✨ Beauty
-          </button>
-
-          <button onclick="filterCategory('Services')">
-            🔧 Services
-          </button>
-
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- BUSINESSES -->
-    <section class="business-section">
-      <div class="container">
-
-        <div class="section-heading">
-
-          <div>
-            <p class="small-title">LOCAL BUSINESSES</p>
-            <h2>Featured businesses</h2>
-          </div>
-
-          <span id="resultCount">0 businesses</span>
-
-        </div>
-
+        <p id="resultCount" class="result-count">Loading businesses...</p>
 
         <div id="businessList" class="business-grid"></div>
 
       </div>
     </section>
 
-
-    <!-- OWNER CTA -->
-    <section class="owner-section">
-
-      <div class="container">
-
-        <div class="owner-card">
-
-          <div>
-            <p class="small-title">BUSINESS OWNERS</p>
-
-            <h2>
-              Want more people to discover your business?
-            </h2>
-
-            <p>
-              Add your business to LocalLift and let people find you.
-            </p>
-          </div>
-
-          <button onclick="openModal()">
-            Add my business →
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
   </main>
 
-
-  <!-- MODAL -->
+  <!-- LIST BUSINESS MODAL -->
   <div id="businessModal" class="modal">
 
     <div class="modal-content">
 
-      <button class="close-btn" onclick="closeModal()">
+      <button class="close-btn" onclick="closeModal()" aria-label="Close">
         ×
       </button>
 
-      <h2>Add your business</h2>
+      <div class="modal-header">
+        <p class="eyebrow">GET DISCOVERED</p>
+        <h2>List your business</h2>
+        <p>Add your business to LocalLift.</p>
+      </div>
 
-      <p>
-        Fill in the details below.
-      </p>
+      <form id="businessForm" onsubmit="addBusiness(event)">
 
-      <form onsubmit="addBusiness(event)">
-
+        <label for="businessName">Business name *</label>
         <input
-          type="text"
           id="businessName"
-          placeholder="Business name"
+          type="text"
+          placeholder="e.g. Moonlight Café"
           required
         >
 
+        <label for="businessCategory">Category *</label>
         <select id="businessCategory" required>
-
-          <option value="">
-            Select category
-          </option>
-
-          <option value="Restaurant">
-            Food & Restaurant
-          </option>
-
-          <option value="Clothing">
-            Clothing
-          </option>
-
-          <option value="Technology">
-            Technology
-          </option>
-
-          <option value="Beauty">
-            Beauty
-          </option>
-
-          <option value="Services">
-            Services
-          </option>
-
+          <option value="">Choose a category</option>
+          <option value="Restaurant">Restaurant</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Technology">Technology</option>
+          <option value="Beauty">Beauty</option>
+          <option value="Services">Services</option>
         </select>
 
+        <label for="businessLocation">Location *</label>
         <input
-          type="text"
           id="businessLocation"
-          placeholder="Location"
+          type="text"
+          placeholder="e.g. Mirpur"
           required
         >
 
+        <label for="businessPhone">Phone</label>
         <input
-          type="text"
           id="businessPhone"
-          placeholder="Phone / WhatsApp"
+          type="tel"
+          placeholder="e.g. 03001234567"
         >
 
+        <label for="businessDescription">Description</label>
         <textarea
           id="businessDescription"
-          placeholder="Tell people about your business..."
           rows="4"
+          placeholder="Tell people about your business..."
         ></textarea>
 
-        <button type="submit" class="submit-btn">
+        <button class="submit-btn" type="submit">
           Add Business
         </button>
 
       </form>
 
     </div>
-
   </div>
 
-
-  <!-- FOOTER -->
   <footer>
-
-    <div class="container footer-content">
-
-      <div>
-        <div class="logo">
-          <span>Local</span>Lift
-        </div>
-
-        <p>
-          Discover local. Support local.
-        </p>
-      </div>
-
-      <p>
-        © 2026 LocalLift
-      </p>
-
+    <div class="container">
+      <div class="footer-logo">Local<span>Lift</span></div>
+      <p>Discover local. Support local.</p>
+      <p class="copyright">© 2026 LocalLift</p>
     </div>
-
   </footer>
 
-
-  <script src="script.js?v=2"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
